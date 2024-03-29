@@ -1,0 +1,32 @@
+{
+    "domains" : {
+        
+        "facebook": ["","www","af-za","ar-ar","az-az","b-m","bg-bg","br-fr", "be-by", "ca-es","co-fr","cs-cz","cx-ph","cy-gb","d","da-dk",
+        "de-de","en-gb","eo-eo","es-es","es-la","et-ee","eu-es","fa-ir","ff-ng","fi-fi","fo-fo","fr-ca","fr-fr","fy-nl","gl-es","he-il",
+        "hi-in","hr-hr","hu-hu","id-id","ik-us","is-is","it-it","ja-jp","kk-kz","ko-kr","ky-kg","m-partners","m","mbasic","mg-mg","mk-mk",
+        "mobile","ms-my","mtouch","nb-no","ne-np","nl-nl","p","pa-in","pages","pl-pl","ps-af","pt-br","pt-pt","ro-ro","ru-ru","rw-rw",
+        "sc-it","sq-al","sr-rs","sv-se","sw-ke","th-th","tl-ph","touch","tr-tr","ur-pk","x","z-p3-upload","z-p4-upload","z-upload,zh-cn",
+        "zh-hk","zh-tw", "en-pi", "sk-sk", "apps", "te-in", "lt-lt", "pixel", "investor", "l", "or-in", "en-ud", "apps.z", "km-kh",
+        "b-www", "business", "ml-in", "uk-ua", "vi-vn", "p-upload", "uz-uz", "web", "ka-ge", "z-upload", "bs-ba", "www", "el-gr", "zh-cn",
+        "ww", "uk-ua", "feedback", "business", "z-m-www"],
+
+        "linkedin": ["","www","ae","au","be","bm","ca","ch","co","cr","cz","de","ec","es","fr","gd","hk","id","ie","il","in","it","jp",
+        "lu","mx","nl","no","pe","pl","sg","sv","th","uk","ve","za", "sk", "gr", "us", "ma", "zw", "pt", "se", "at", "tz", "gh", "ke", "gc",
+        "ng", "ws", "bo", "br", "nz", "tyahwww", "cl", "ar", "dk"],
+
+        "instagram": ["","www","l","api","i","badges","preprod","m", "www.secure"],
+
+        "youtube": ["","www","es","mx","it","de","ca","au","nl","il","br","nz","in","ie","ru","pl","kr","tw","uk","gaming","m","fr","jp",
+        "hk","se","cz","hu","za"],
+
+        "twitter": ["","www","mobile"]
+
+        },
+        
+        "subdirs" : {
+            
+        "company" : ["showcase", "school", "companies", "company-beta", "organization"],
+        "groups" : ["grps"],
+        "in" : ["profile"]
+    }
+}
