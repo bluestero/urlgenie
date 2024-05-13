@@ -8,4 +8,5 @@ text = "https://www.facebook.com/media/set/?set=a.100624826695130.753.1000024283
 text = "www.twitter.com/shares"
 text = "www.x.com/shares"
 text = "https://www.fb.com/media/set/?set=a.100624826695130.753.100002428381256&type=3#!/"
-print(gen.generalize(text))
+text = "www.google.com/search?query=Ahmed+Dino"
+print(gen.generalize(text, keep_query = True, keep_path = False))

@@ -49,6 +49,7 @@ class UrlGeneralizer():
     def generalize(self,
                         url: str,
                         lower: bool = False,
+                        keep_path: bool = True,
                         keep_query: bool = False,
                         get_handle: bool = False,
                         get_domain: bool = False,
@@ -114,7 +115,8 @@ class UrlGeneralizer():
         parse = urlparse(base, allow_fragments = True)
         url_query = '?' + parse.query if parse.query else ''
         url_fragment = '#' + parse.fragment if parse.fragment else ''
-        url = f'{parse.scheme}://{parse.netloc}{parse.path}{url_query}{url_fragment}'
+        url_path = f"{parse.path}{url_query}{url_fragment}" if keep_path else ""
+        url = f'{parse.scheme}://{parse.netloc}{url_path}'
 
         #--Social function placeholders required for rectifying the social urls--#
         socials = {

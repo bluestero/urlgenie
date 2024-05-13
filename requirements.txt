@@ -1,1 +1,1 @@
-tldextract==2.2.2
+tldextract==5.1.2
