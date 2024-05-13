@@ -16,7 +16,7 @@ class UrlGeneralizer():
         #--Creating bad social and bad url objects--#
         self.bad_url = bad_url
         self.bad_social = bad_social
-        
+
         #--Storing the package directory inside an object--#
         self.dir = os.path.dirname(os.path.realpath(__file__)) + '//'
 
@@ -36,13 +36,13 @@ class UrlGeneralizer():
                 'linkedin' : [],
                 'instagram' : []
                 }
-        
+
         #--Initializing Domains dictionary from the config--#
         with open(self.dir + 'config.json', 'r', encoding = 'utf-8') as config:
             data = json.load(config)
             self.domains = data['domains']
             self.subdirs = data['subdirs']
-        
+
         #--URL Validation Regex--#
         self.url_validation = re.compile(r"^((http://|https://|^)([a-z.-]{1,10}\.)*|http://|https://|^)[a-z0-9-]{1,63}\.(co.)?(" + self.tlds + ")(?=\/|$)", flags = re.IGNORECASE)
 
@@ -63,7 +63,7 @@ class UrlGeneralizer():
         if comma_separated:
             if type(url) != str:
                 return url
-            
+
             url_split = [self.generalize(ur.strip(), lower = lower, keep_query = keep_query, get_handle = get_handle, 
                                          get_domain = get_domain, keep_periods = keep_periods, keep_fragment = keep_fragment,
                                          replace_empty_subdomain = replace_empty_subdomain, social_rectification = social_rectification,
@@ -74,7 +74,7 @@ class UrlGeneralizer():
         #--Checking if the give URL is valid or not before proceeding--#
         if not bool(self.url_validation.search(str(url))):
             return self.bad_url if self.bad_url else url
-        
+
         #--Encoding all the non-ASCII values--#
         url = quote(unquote(url.strip()), safe = "@%&-:?=/_.!#[]")
         url = url + '/' if url[-1] != '/' else url
@@ -95,7 +95,7 @@ class UrlGeneralizer():
         #--Conditions for replacing subdomain with www--#
         if social_rectification:
             replace_social_subdomain = True
-            
+
         conditions = [
             replace_all_subdomain,
             replace_social_subdomain and url_domain.lower() in self.domains and fixed_subdomain.lower() in self.domains[url_domain.lower()],
@@ -123,7 +123,7 @@ class UrlGeneralizer():
             f'https://{url_subdomain}.linkedin.com': lambda url: social_gens.linkedin_gen(url, url_subdomain, get_handle, self.subdirs, self.bad_social),
             f'https://{url_subdomain}.twitter.com': lambda url: social_gens.twitter_gen(url, url_subdomain, get_handle, self.bad_social)
         }
-        
+
         if social_rectification:
             for key, value in socials.items():
                 if key in url.lower():
@@ -148,7 +148,7 @@ class UrlGeneralizer():
         with open(file_path, "w") as outfile:
             json.dump(self.subdomains, outfile, indent = 4)
 
-    
+
     #--Function to retrieve the subdomains inside your calling directory--#
     def get_subdomains(self):
         file_path = os.getcwd() + "//subdomains.json"
