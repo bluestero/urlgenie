@@ -57,6 +57,7 @@ class UrlGeneralizer():
                         keep_fragment: bool = False,
                         comma_separated: bool = False,
                         replace_empty_subdomain = False,
+                        get_domain_with_tld: bool = False,
                         social_rectification: bool = True,
                         replace_all_subdomain: bool = False,
                         replace_social_subdomain: bool = True) -> str :
@@ -88,6 +89,10 @@ class UrlGeneralizer():
         #--Returning only the domain if get_domain is True--#
         if get_domain:
             return url_domain
+
+        #-Returning the domain with tld if get_domain_with_tld is True-#
+        if get_domain_with_tld:
+            return f"{url_domain}.{url_extract.suffix}"
 
         #--Fixing subdomains containing extra suffixes--#
         subdomain_suffixes = ['secure', 'latest', 'cinyour', 'prod', 'm']

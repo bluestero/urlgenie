@@ -13,6 +13,8 @@ def pub_to_in(url: str) -> str :
 
 def facebook_gen(url: str, subdomain: str, get_handle: bool, keep_periods: bool, bad_social: str) -> str :
 
+    url = url.lower()
+
     id = re.search(r"/user/[0-9]{5,}(\/|&|\?|\.\.\.|#|$|http|=)", url, re.IGNORECASE)
 
     if not id:
@@ -31,7 +33,7 @@ def facebook_gen(url: str, subdomain: str, get_handle: bool, keep_periods: bool,
         handle = re.search(f"https://{subdomain}." + r"facebook.com(.br|.au)?/(/)?(#!/|#1/)?(pg/|watch/|groups/|events/|\.\.\./|pages/category/(photographer|journalist)/|home.php[#!\?]{1,3}/|\?[a-z_]{1,}=[a-z_#!?]{1,}/|pages/edit/\?id=\d+#!/|\?_rdr#!/)?@?[a-z0-9%.-]{1,50}(\/|\?|#|$|#|http|=)", url, re.IGNORECASE)
 
     if handle:
-        exceptions = ['profilephp', 'groupid', 'groups', 'people', 'pg', 'pages', 'homephp', 'public', 'events', 'watch', 'homephp!', 'media', 'dialog', 'help', 'search', 'sharer', 'sharerphp', 'login']
+        exceptions = ['profilephp', 'groupid', 'groups', 'people', 'pg', 'pages', 'homephp', 'public', 'events', 'watch', 'homephp!', 'media', 'dialog', 'help', 'search', 'sharer', 'sharerphp', 'login', '2008']
         handle = handle[0][:-1] if handle[0][-1] in ['/', '?', '#', '=', '&'] else handle[0]
         handle = handle[:-4].split('/') if handle[-4:] == 'http' else handle.split('/')
         subdir = handle[-2]
@@ -45,6 +47,8 @@ def facebook_gen(url: str, subdomain: str, get_handle: bool, keep_periods: bool,
 
 def instagram_gen(url: str, subdomain: str, get_handle: bool, bad_social: str) -> str :
 
+    url = url.lower()
+
     handle = re.search(f"https://{subdomain}." + r"instagram.com(.br|.au)?/(/)?(accounts/login/\?next=/)?[a-z0-9_.]{1,30}(\/|&|\?|#|$|http|=)", url, re.IGNORECASE)
     if handle:
         handle = handle[0][:-1] if handle[0][-1] in ['/', '?', '#', '=', '&'] else handle[0]
@@ -57,6 +61,8 @@ def instagram_gen(url: str, subdomain: str, get_handle: bool, bad_social: str) -
 
 
 def twitter_gen(url: str, subdomain: str, get_handle: bool, bad_social: str) -> str :
+
+    url = url.lower()
 
     handle = re.search(r"screen_name=@?[a-z0-9_.]{1,20}(\/|&|\?|\[|#|$|http|=)", url, re.IGNORECASE)
 
@@ -77,10 +83,10 @@ def twitter_gen(url: str, subdomain: str, get_handle: bool, bad_social: str) -> 
 
 def linkedin_gen(url: str, subdomain: str, get_handle: bool, subdirs: dict, bad_social: str) -> str :
 
-
     handle = re.search(f"https://{subdomain}." + r"linkedin.com(.br|.au)?/(/)?in/(ACwAA|acwaa)[A-Za-z0-9_-]{34}(\/|&|\?|#|$|http|=)", url, re.IGNORECASE)
 
     if not handle:
+        url = url.lower()
         handle = re.search(f"https://{subdomain}." + r"linkedin.com(.br|.au)?/(/)?(organization-guest/)?((in/|company/|showcase/|school/|companies/|profile/view\?id=)[a-z0-9&%.~_-]{2,200}|(gr(ou)?ps/|company-beta/|edu/|organization/|(edu/school\?id=)?)([a-z0-9&%.~_-]{2,200})?[0-9]{2,10})(\/|&|\?|#|$|http|=)", url, re.IGNORECASE)
     if not handle:
         handle = re.search(f"https://{subdomain}." + r"linkedin.com(.br|.au)?/(/)?pub/[a-z0-9&%.~_-]{2,150}/[a-z0-9]{1,3}/[a-z0-9]{1,3}/[a-z0-9]{1,3}(\/|&|\?|#|$|http|=)", url, re.IGNORECASE)
