@@ -6,10 +6,10 @@ import pandas as pd
 from tldextract import extract
 from urllib.parse import urlparse, quote, unquote
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-import social_gens
+import constants, social_gens
 
 
-class UrlGeneralizer():
+class UrlGenie():
 
     def __init__(self, proper_tlds: bool = False, bad_url = "", bad_social = "") -> None:
 
@@ -147,6 +147,83 @@ class UrlGeneralizer():
 
         #--Returning the decoded url in lower if lower flag is on--#
         return unquote(url).lower() if lower else unquote(url)
+
+
+    #-Function to extract emails and socials from the given text-#
+    def extract_from_text(self, text: str) -> dict:
+
+        #-Base object-#
+        all_info = {
+            "phone": set(),
+            "email": set(),
+            "facebook": set(),
+            "twitter": set(),
+            "linkedin": set(),
+            "instagram": set(),
+        }
+
+        #-Iterating the dictionary containing different list of patterns-#
+        for column, patterns in constants.patterns_dict.items():
+
+            #-Iterating the pattern list-#
+            for pattern in patterns:
+
+                #-Adding the regex matches in the all_info dict-#
+                all_info[column] = all_info[column].union(set(pattern.findall(text)))
+
+        #-Returning the regexed data-#
+        return all_info
+
+
+    #-Function to validate the result dict-#
+    def validate_result_dict(self, result: dict, ) -> dict:
+
+        #-Storing the original values-#
+        bad_url, bad_social = self.bad_url, self.bad_social
+
+        #-Updating the class values-#
+        self.bad_url, self.bad_social = "Bad", "Bad"
+
+        #-Function to validate socials-#
+        def validate_socials(socials: set) -> set:
+
+            #-Valid socials set-#
+            valid_socials = set()
+
+            #-Iterating the socials set-#
+            for social in socials:
+
+                #-Generalizing the url-#
+                url = self.generalize(social)
+
+                #-Adding the social to valid socials set if valid-#
+                if url != "Bad":
+                    valid_socials.add(url)
+
+            #-Returning the valid socials set-#
+            return valid_socials
+
+        #-Dict to map column names with functions-#
+        validate_dict = {
+            "facebook": validate_socials,
+            "twitter": validate_socials,
+            "linkedin": validate_socials,
+            "instagram": validate_socials,
+        }
+
+        #-Iterating the column name and values set of the result dict-#
+        for column, values in result.items():
+
+            #-Validating and adding the validated values if column is present-#
+            if column in validate_dict:
+                result[column] = validate_dict[column](values)
+
+        #-Restoring the original values-#
+        self.bad_url, self.bad_social = bad_url, bad_social
+
+        #-Returning the validated dict-#
+        return result    
+
 
 
     #--Function to update the json file with the newly found subdomains--#
