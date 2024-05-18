@@ -11,9 +11,9 @@ def get_description():
 
 setup(
     license = "MIT",
-    name = "url-gen",
+    name = "urlgenie",
     version = "1.0.0",
-    packages = ["url_gen"],
+    packages = ["urlgenie"],
     author = "Ahmed Khatib",
     python_requires = ">=3.7",
     maintainer = "Ahmed Khatib",
@@ -22,11 +22,12 @@ setup(
     author_email = "ahmedkhatib99@gmail.com",
     maintainer_email = "ahmedkhatib99@gmail.com",
     long_description_content_type = "text/markdown",
+    download_url = "https://github.com/bluestero/urlgenie/archive/refs/tags/1.0.0.tar.gz",
     description = "Tool to make URL extraction, generalization, validation, and filtration easy.",
     project_urls={
-        "Documentation": "https://github.com/bluestero/url-gen/blob/main/README.md",
-        "Source": "https://github.com/bluestero/url-gen",
-        "Tracker": "https://github.com/bluestero/url-gen/issues",
+        "Documentation": "https://github.com/bluestero/urlgenie/blob/main/README.md",
+        "Source": "https://github.com/bluestero/urlgenie",
+        "Tracker": "https://github.com/bluestero/urlgenie/issues",
     },
     keywords = [
         "url-parsing",
