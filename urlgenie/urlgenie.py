@@ -21,7 +21,8 @@ class UrlGenie():
         self.dir = os.path.dirname(os.path.realpath(__file__)) + '//'
 
         #--Getting list of all valid TLDs and joining them to use in url regex--#
-        self.tlds = '|'.join([str(tld) for tld in pd.read_csv(self.dir + 'TLDs.csv')['tlds']]) if proper_tlds else '[A-Za-z]{2,4}'
+        with open(os.path.join(self.dir + "TLDs.csv"), "r", encoding = "utf-8") as file:
+            self.tlds = "|".join([line.strip() for line in file]) if proper_tlds else "[A-Za-z]{2,4}"
 
         #--Checking if subdomain file exists--#
         if os.path.exists(self.dir + 'subdomains.json'):
