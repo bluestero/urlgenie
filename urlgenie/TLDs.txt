@@ -1,4 +1,3 @@
-tlds
 AAA
 AARP
 ABARTH
