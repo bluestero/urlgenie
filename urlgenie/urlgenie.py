@@ -177,13 +177,36 @@ class UrlGenie():
 
 
     #-Function to validate the result dict-#
-    def validate_result_dict(self, result: dict, ) -> dict:
+    def validate_result_dict(self, result_dict: dict, url: str = "") -> dict:
+
+        #-Copying the result dict instance-#
+        result = result_dict.copy()
 
         #-Storing the original values-#
         bad_url, bad_social = self.bad_url, self.bad_social
 
         #-Updating the class values-#
         self.bad_url, self.bad_social = "Bad", "Bad"
+
+        #-Function to validate emails-#
+        def validate_email(emails: set) -> set:
+
+            #-Valid emails set-#
+            valid_emails = set()
+
+            #-Iterating the emails set-#
+            for email in emails:
+
+                #-Getting the domain of the url and email-#
+                url_domain = self.generalize(url, get_domain_with_tld = True)
+                email_domain = email.split("@")[-1]
+
+                #-Adding the email to the emails set if domain matches-#
+                if url_domain == email_domain:
+                    valid_emails.add(email)
+
+            #-Returning the valid emails set-#
+            return valid_emails
 
         #-Function to validate socials-#
         def validate_socials(socials: set) -> set:
@@ -211,6 +234,10 @@ class UrlGenie():
             "linkedin": validate_socials,
             "instagram": validate_socials,
         }
+
+        #-Adding email validation if a valid url is provided-#
+        if url and self.generalize(url) != "Bad":
+            validate_dict["email"] = validate_email
 
         #-Iterating the column name and values set of the result dict-#
         for column, values in result.items():

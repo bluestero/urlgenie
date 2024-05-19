@@ -12,7 +12,7 @@ def get_description():
 setup(
     license = "MIT",
     name = "urlgenie",
-    version = "1.0.0",
+    version = "1.1.0",
     packages = ["urlgenie"],
     author = "Ahmed Khatib",
     python_requires = ">=3.7",
@@ -22,7 +22,6 @@ setup(
     author_email = "ahmedkhatib99@gmail.com",
     maintainer_email = "ahmedkhatib99@gmail.com",
     long_description_content_type = "text/markdown",
-    download_url = "https://github.com/bluestero/urlgenie/archive/refs/tags/1.0.0.tar.gz",
     description = "Python package to make URL extraction, generalization, validation, and filtration easy.",
     project_urls={
         "Documentation": "https://github.com/bluestero/urlgenie/blob/main/README.md",
