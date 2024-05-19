@@ -23,7 +23,7 @@ setup(
     maintainer_email = "ahmedkhatib99@gmail.com",
     long_description_content_type = "text/markdown",
     download_url = "https://github.com/bluestero/urlgenie/archive/refs/tags/1.0.0.tar.gz",
-    description = "Tool to make URL extraction, generalization, validation, and filtration easy.",
+    description = "Python package to make URL extraction, generalization, validation, and filtration easy.",
     project_urls={
         "Documentation": "https://github.com/bluestero/urlgenie/blob/main/README.md",
         "Source": "https://github.com/bluestero/urlgenie",
