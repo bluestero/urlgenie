@@ -13,9 +13,10 @@ It is a python package based on research involving over 2 million URLs, designed
 It checks the given URL input, validates it against the URL regex, identifies each component of the URL and processes it according to the set flags.
 
 ## ✨ Features
-- Handle both encoded and decoded URLs.
+- Handles both encoded and decoded URLs.
+- Handles comma separated URLs using recursion.
 - Filter out valid, invalid URLs and also bad socials with ease.
-- Extract Email and Socials from a given text and validate them.
+- Email and Socials extraction from a given text and validate them.
 - URL validation using regex and over 1400 TLDs (off by default).
 - Duplicate reduction by minimizing the general and social URL patterns.
 - Domain mismatch by just extracting the domain along with the TLD and match against the email domain.
