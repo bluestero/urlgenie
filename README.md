@@ -1,5 +1,5 @@
 <p align = "center">
-<img src = "./images/mascot.png" alt = "urlgenie" /><div align = "center" style = "margin-top: 0;">
+<img src = "https://raw.githubusercontent.com/bluestero/urlgenie/master/images/mascot.png" alt = "urlgenie" /><div align = "center" style = "margin-top: 0;">
 <h1>🧞 URL Genie 🧞</h1>
 </div>
 <h3 align="center">
