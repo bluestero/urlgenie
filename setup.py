@@ -12,11 +12,12 @@ def get_description():
 setup(
     license = "MIT",
     name = "urlgenie",
-    version = "1.1.3",
+    version = "1.1.4",
     packages = ["urlgenie"],
     author = "Ahmed Khatib",
     python_requires = ">=3.7",
     maintainer = "Ahmed Khatib",
+    include_package_data = True,
     install_requires = ["tldextract"],
     long_description = get_description(),
     author_email = "ahmedkhatib99@gmail.com",

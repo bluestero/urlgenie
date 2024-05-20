@@ -1,0 +1,4 @@
+include *.txt
+include *.json
+recursive-include your_package *.txt
+recursive-include your_package *.json
