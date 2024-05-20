@@ -151,7 +151,7 @@ class UrlGenie():
 
 
     #-Function to extract emails and socials from the given text-#
-    def extract_from_text(self, text: str) -> dict:
+    def extract_from_text(self, text: str, patterns_dict: dict = constants.generic_patterns) -> dict:
 
         #-Base object-#
         all_info = {
@@ -164,7 +164,7 @@ class UrlGenie():
         }
 
         #-Iterating the dictionary containing different list of patterns-#
-        for column, patterns in constants.patterns_dict.items():
+        for column, patterns in patterns_dict.items():
 
             #-Iterating the pattern list-#
             for pattern in patterns:

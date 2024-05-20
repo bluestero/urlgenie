@@ -30,8 +30,14 @@ instagram_handle = re.compile(
     r"instagram.com(?:.br|.au)?/+(?:accounts/login/\?next=/)"
     r"?[a-z0-9_.]{1,30}", flags = re.IGNORECASE)
 
-#-A pattern dictionary for easy access-#
-patterns_dict = {
+#-A pattern dictionary for href mailto and tel search-#
+primary_patterns = {
+    "phone": [phone_pattern_loose],
+    "email": [email_pattern],
+}
+
+#-A pattern dictionary for universal search-#
+generic_patterns = {
     "phone": [phone_pattern_strict],
     "email": [email_pattern],
     "instagram": [instagram_handle],
