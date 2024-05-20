@@ -12,7 +12,7 @@ def get_description():
 setup(
     license = "MIT",
     name = "urlgenie",
-    version = "1.1.1",
+    version = "1.1.2",
     packages = ["urlgenie"],
     author = "Ahmed Khatib",
     python_requires = ">=3.7",
