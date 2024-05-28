@@ -114,3 +114,19 @@ def linkedin_gen(url: str, subdomain: str, get_handle: bool, subdirs: dict, bad_
         return f"https://{subdomain}.linkedin.com/groups/{id}" if not get_handle else id
 
     return bad_social if bad_social else url
+
+
+def youtube_gen(url: str, subdomain: str, get_handle: bool, bad_social: str) -> str :
+
+    url = url.lower()
+
+    handle = re.search(f"https://{subdomain}." + r"youtube.(com)?[a-z]{2,3}/(/)?(#/)?(?:c/|channel/|user/)?@?[a-z0-9._-]{3,30}(\/|&|\?|\[|#|$|http|=)", url, re.IGNORECASE)
+    
+    if handle:
+        handle = handle[0][:-1] if handle[0][-1] in ['/', '?', '#', '=', '&'] else handle[0]
+        handle = handle[:-4] if handle[-4:] == 'http' else handle
+        handle = handle.split('/')[-1]
+        if handle.lower() not in []:
+            return f"https://{subdomain}.youtube.com/{handle}" if not get_handle else handle
+    
+    return bad_social if bad_social else url

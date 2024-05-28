@@ -129,7 +129,8 @@ class UrlGenie():
             f'https://{url_subdomain}.facebook.com': lambda url: social_gens.facebook_gen(url, url_subdomain, get_handle, keep_periods, self.bad_social),
             f'https://{url_subdomain}.instagram.com': lambda url: social_gens.instagram_gen(url, url_subdomain, get_handle, self.bad_social),
             f'https://{url_subdomain}.linkedin.com': lambda url: social_gens.linkedin_gen(url, url_subdomain, get_handle, self.subdirs, self.bad_social),
-            f'https://{url_subdomain}.twitter.com': lambda url: social_gens.twitter_gen(url, url_subdomain, get_handle, self.bad_social)
+            f'https://{url_subdomain}.twitter.com': lambda url: social_gens.twitter_gen(url, url_subdomain, get_handle, self.bad_social),
+            f'https://{url_subdomain}.youtube': lambda url: social_gens.youtube_gen(url, url_subdomain, get_handle, self.bad_social),
         }
 
         if social_rectification:
