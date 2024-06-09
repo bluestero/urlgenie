@@ -152,7 +152,7 @@ class UrlGenie():
 
 
     #-Function to extract emails and socials from the given text-#
-    def extract_from_text(self, text: str, patterns_dict: dict = constants.generic_patterns) -> dict:
+    def extract_from_text(self, text: str, patterns_dict: dict = constants.generic_patterns, exclude_cols: list = None) -> dict:
 
         #-Base object-#
         all_info = {
@@ -167,18 +167,21 @@ class UrlGenie():
         #-Iterating the dictionary containing different list of patterns-#
         for column, patterns in patterns_dict.items():
 
-            #-Iterating the pattern list-#
-            for pattern in patterns:
+            #-Checking if the column is not in excluded list-#
+            if column not in exclude_cols:
 
-                #-Adding the regex matches in the all_info dict-#
-                all_info[column] = all_info[column].union(set(pattern.findall(text)))
+                #-Iterating the pattern list-#
+                for pattern in patterns:
+
+                    #-Adding the regex matches in the all_info dict-#
+                    all_info[column] = all_info[column].union(set(pattern.findall(text)))
 
         #-Returning the regexed data-#
         return all_info
 
 
     #-Function to validate the result dict-#
-    def validate_result_dict(self, result_dict: dict, url: str = "") -> dict:
+    def validate_result_dict(self, result_dict: dict, url: str = None, exclude_cols: list = None) -> dict:
 
         #-Copying the result dict instance-#
         result = result_dict.copy()
@@ -243,8 +246,8 @@ class UrlGenie():
         #-Iterating the column name and values set of the result dict-#
         for column, values in result.items():
 
-            #-Validating and adding the validated values if column is present-#
-            if column in validate_dict:
+            #-Validating and adding the validated values if column is present and not excluded-#
+            if column in validate_dict and column not in exclude_cols:
                 result[column] = validate_dict[column](values)
 
         #-Restoring the original values-#
