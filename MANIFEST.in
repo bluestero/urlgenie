@@ -1,4 +1,3 @@
-include *.txt
-include *.json
-recursive-include your_package *.txt
-recursive-include your_package *.json
+include urlgenie/config.json
+include urlgenie/TLDs.txt
+include urlgenie/subdomains.json
