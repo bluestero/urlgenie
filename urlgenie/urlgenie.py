@@ -2,7 +2,6 @@ import os
 import re
 import sys
 import json
-import pandas as pd
 from tldextract import extract
 from urllib.parse import urlparse, quote, unquote
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
