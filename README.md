@@ -1,5 +1,5 @@
 <p align = "center">
-<img src = "https://raw.githubusercontent.com/bluestero/urlgenie/master/images/mascot.png" alt = "urlgenie" /><div align = "center" style = "margin-top: 0;">
+<img src = "https://raw.githubusercontent.com/bluestero/urlgenie/main/images/mascot.png" alt = "urlgenie" /><div align = "center" style = "margin-top: 0;">
 <h1>🧞 URL Genie 🧞</h1>
 </div>
 <h3 align="center">
@@ -205,11 +205,12 @@ python tools/benchmark.py 1000000
 ## 🧪 Tests
 
 ```shell
-python -m pytest tests -q      # 284 tests
+python -m pytest tests -q      # 287 tests
 ```
 
-`tests/sample.csv` is the reference sheet and is treated as the spec: every row is
-asserted for both the generalized URL and the extracted handle.
+`sample.csv` at the repo root is the reference sheet and is treated as the spec,
+read directly by the test suite: every row is asserted for both the generalized
+URL and the extracted handle.
 
 ## 📖 Resources
 - [Sample Sheet](https://docs.google.com/spreadsheets/d/12QHwZxiDv80ksFngQK10hkOmPQLRpI0s6dPfe6mRuxk/edit?usp=sharing)
