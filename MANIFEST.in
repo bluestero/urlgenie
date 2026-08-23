@@ -1,3 +1,0 @@
-include urlgenie/config.json
-include urlgenie/TLDs.txt
-include urlgenie/subdomains.json
