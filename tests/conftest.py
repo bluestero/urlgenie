@@ -4,8 +4,10 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-#-A copy of the reference sheet; it is the spec these tests assert against.-#
-SAMPLE_CSV = pathlib.Path(__file__).with_name("sample.csv")
+#-The reference sheet at the repo root; it is the spec these tests assert
+# against. Read directly rather than from a copy, so there is only one file
+# to edit and no risk of the two drifting apart.-#
+SAMPLE_CSV = pathlib.Path(__file__).resolve().parents[1] / "sample.csv"
 
 
 def load_sample_rows():
