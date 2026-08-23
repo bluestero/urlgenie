@@ -15,7 +15,8 @@ def _ids(rows):
 @pytest.mark.parametrize("section,url,expected,handles", ROWS, ids=_ids(ROWS))
 def test_generalized_matches_sample(section, url, expected, handles):
     if "," in url and ", " in expected:
-        assert ", ".join(generalize_many(url)) == expected
+        got = [result for _, result in generalize_many(url) if result is not None]
+        assert ", ".join(got) == expected
     else:
         assert generalize(url) == expected
 

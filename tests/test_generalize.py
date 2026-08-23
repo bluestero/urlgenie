@@ -29,13 +29,45 @@ def test_flags_are_independent():
 
 def test_generalize_many_forwards_every_flag():
     """v1 silently dropped keep_path and get_domain_with_tld in the comma path."""
-    assert generalize_many("a.com/p, b.com/q", keep_path=False) == ["https://a.com", "https://b.com"]
-    assert generalize_many("a.com/p?x=1", keep_query=True) == ["https://a.com/p?x=1"]
+    assert generalize_many("a.com/p, b.com/q", keep_path=False) == [
+        ("a.com/p", "https://a.com"),
+        ("b.com/q", "https://b.com"),
+    ]
+    assert generalize_many("a.com/p?x=1", keep_query=True) == [("a.com/p?x=1", "https://a.com/p?x=1")]
 
 
-def test_generalize_many_accepts_iterables_and_drops_blanks():
-    assert generalize_many(["a.com/p", "  ", None, "bad..."]) == ["https://a.com/p"]
-    assert generalize_many("a.com/p,, , b.com/q") == ["https://a.com/p", "https://b.com/q"]
+def test_generalize_many_accepts_iterables_and_skips_blanks():
+    """Blank entries are dropped before generalizing; they were never real input rows."""
+    assert generalize_many(["a.com/p", "  ", None, "bad..."]) == [
+        ("a.com/p", "https://a.com/p"),
+        ("bad...", None),
+    ]
+    assert generalize_many("a.com/p,, , b.com/q") == [
+        ("a.com/p", "https://a.com/p"),
+        ("b.com/q", "https://b.com/q"),
+    ]
+
+
+def test_generalize_many_keeps_invalid_entries_aligned_with_their_input():
+    """A bad URL must not shift every later result out of position -- report it, don't drop it."""
+    result = generalize_many("facebook.com,facebook/com,dummy.com,instagram.com/ahmed")
+    assert result == [
+        ("facebook.com", "https://facebook.com"),
+        ("facebook/com", None),
+        ("dummy.com", "https://dummy.com"),
+        ("instagram.com/ahmed", "https://www.instagram.com/ahmed"),
+    ]
+
+
+def test_generalize_many_drop_invalid_omits_bad_entries_but_keeps_pair_shape():
+    """drop_invalid changes what's included, never the shape of what's returned."""
+    result = generalize_many("facebook.com,facebook/com,dummy.com,instagram.com/ahmed", drop_invalid=True)
+    assert result == [
+        ("facebook.com", "https://facebook.com"),
+        ("dummy.com", "https://dummy.com"),
+        ("instagram.com/ahmed", "https://www.instagram.com/ahmed"),
+    ]
+    assert all(generalized is not None for _, generalized in result)
 
 
 @pytest.mark.parametrize(
