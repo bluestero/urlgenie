@@ -34,12 +34,19 @@ Depends only on `tldextract`, used offline against its bundled public suffix lis
 ## ♨️ Usage
 
 ```python
-from urlgenie import generalize, generalize_social, extract_social_handle, extract_contacts
+from urlgenie import generalize, generalize_social, extract_social_handle
 
-generalize("cnn.com/sports/about?a=b#c")          # 'https://cnn.com/sports/about'
-generalize("facebook.com.br/@Ahmed.Khatib")       # 'https://www.facebook.com/ahmedkhatib'
-generalize_social("x.com/elonmusk")               # 'https://twitter.com/elonmusk'
-extract_social_handle("x.com/elonmusk").handle    # 'elonmusk'
+print(generalize("cnn.com/sports/about?a=b#c"))
+>> https://cnn.com/sports/about
+
+print(generalize("facebook.com.br/@Ahmed.Khatib"))
+>> https://www.facebook.com/ahmedkhatib
+
+print(generalize_social("x.com/elonmusk"))
+>> https://twitter.com/elonmusk
+
+print(extract_social_handle("x.com/elonmusk").handle)
+>> elonmusk
 ```
 
 Everything returns `None` on invalid input rather than a magic string, so use
@@ -49,17 +56,32 @@ Everything returns `None` on invalid input rather than a magic string, so use
 df["clean"] = df["url"].apply(lambda u: generalize(u) or "Bad Url")
 ```
 
+```python
+print(generalize("random.haz/somePath") or "Bad Url")
+>> Bad Url
+```
+
 ### Extracting contacts from a page
 
 ```python
+from urlgenie import extract_contacts, validate_contacts
+
 result = extract_contacts(scraped_text)
-result.emails      # {'sales@example.com', 'someone@gmail.com'}
-result.facebook    # {'https://www.facebook.com/example'}
-result.phones      # {'+14155552671'}
+
+print(result.emails)
+>> {'sales@example.com', 'someone@gmail.com'}
+
+print(result.facebook)
+>> {'https://www.facebook.com/example'}
+
+print(result.phones)
+>> {'+14155552671'}
 
 #-Keep only emails belonging to the site being scraped-#
 validated = validate_contacts(result, url="https://www.example.com/contact")
-validated.emails   # {'sales@example.com'}
+
+print(validated.emails)
+>> {'sales@example.com'}
 ```
 
 ## 📋 API
@@ -87,12 +109,14 @@ Version 2 removes the `UrlGenie` class. Import the functions directly.
 ```python
 # 1.x
 from urlgenie import UrlGenie
-genie = UrlGenie(bad_url="Bad Url", proper_tlds=True)
-genie.generalize(url)
+genie = UrlGenie(bad_url = "Bad Url", proper_tlds = True)
+print(genie.generalize("fb.com/@ahmedkhatib"))
+>> https://www.facebook.com/ahmedkhatib
 
 # 2.x
 from urlgenie import generalize
-generalize(url) or "Bad Url"
+print(generalize("fb.com/@ahmedkhatib") or "Bad Url")
+>> https://www.facebook.com/ahmedkhatib
 ```
 
 | 1.x | 2.x |

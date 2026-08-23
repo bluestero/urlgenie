@@ -2,11 +2,16 @@
 
 Small, explicit functions instead of one function with a dozen flags::
 
-    from urlgenie import generalize, generalize_social, extract_contacts
+    from urlgenie import generalize, generalize_social, extract_social_handle
 
-    generalize("cnn.com/sports/about?a=b#c")   # https://cnn.com/sports/about
-    generalize_social("fb.com/@ahmedkhatib")   # https://www.facebook.com/ahmedkhatib
-    extract_social_handle("x.com/elonmusk")    # SocialHandle(twitter, elonmusk, ...)
+    print(generalize("cnn.com/sports/about?a=b#c"))
+    >> https://cnn.com/sports/about
+
+    print(generalize_social("fb.com/@ahmedkhatib"))
+    >> https://www.facebook.com/ahmedkhatib
+
+    print(extract_social_handle("x.com/elonmusk").handle)
+    >> elonmusk
 """
 
 from .extract import extract_contacts, validate_contacts
