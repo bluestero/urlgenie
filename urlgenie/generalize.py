@@ -50,11 +50,22 @@ def generalize_url(
     return result.lower() if lower else result
 
 
-def generalize(url, *, social: bool = True, **kwargs) -> Optional[str]:
+def generalize(
+    url,
+    *,
+    social: bool = True,
+    keep_path: bool = True,
+    keep_query: bool = False,
+    keep_fragment: bool = False,
+    keep_userinfo: bool = False,
+    force_https: bool = True,
+    lower: bool = False,
+) -> Optional[str]:
     """Generalize any URL, canonicalizing social profiles when recognized.
 
-    Set ``social=False`` to treat social URLs like any other URL.
-    Keyword arguments are forwarded to :func:`generalize_url`.
+    Set ``social=False`` to treat social URLs like any other URL. Every other
+    flag has the same meaning as in :func:`generalize_url` and only applies
+    once a URL falls through to that plain (non-social) path.
     """
     parsed = url if isinstance(url, ParsedUrl) else parse_url(url)
     if parsed is None:
@@ -65,11 +76,29 @@ def generalize(url, *, social: bool = True, **kwargs) -> Optional[str]:
         if found is not None:
             return found.url
 
-    return generalize_url(parsed, **kwargs)
+    return generalize_url(
+        parsed,
+        keep_path=keep_path,
+        keep_query=keep_query,
+        keep_fragment=keep_fragment,
+        keep_userinfo=keep_userinfo,
+        force_https=force_https,
+        lower=lower,
+    )
 
 
 def generalize_many(
-    urls, *, separator: str = ",", social: bool = True, drop_invalid: bool = False, **kwargs
+    urls,
+    *,
+    separator: str = ",",
+    drop_invalid: bool = False,
+    social: bool = True,
+    keep_path: bool = True,
+    keep_query: bool = False,
+    keep_fragment: bool = False,
+    keep_userinfo: bool = False,
+    force_https: bool = True,
+    lower: bool = False,
 ) -> List[Tuple[str, Optional[str]]]:
     """Generalize a delimited string or an iterable of URLs.
 
@@ -84,8 +113,7 @@ def generalize_many(
     which output. The return shape does not change: you still get
     ``(original, generalized)`` pairs, just fewer of them.
 
-    Every keyword argument is forwarded to :func:`generalize`, so no flag can
-    be silently lost here.
+    Every other flag has the same meaning as in :func:`generalize`.
     """
     if isinstance(urls, str):
         urls = urls.split(separator)
@@ -95,7 +123,16 @@ def generalize_many(
         if not isinstance(item, str) or not item.strip():
             continue
         original = item.strip()
-        generalized = generalize(original, social=social, **kwargs)
+        generalized = generalize(
+            original,
+            social=social,
+            keep_path=keep_path,
+            keep_query=keep_query,
+            keep_fragment=keep_fragment,
+            keep_userinfo=keep_userinfo,
+            force_https=force_https,
+            lower=lower,
+        )
         if drop_invalid and generalized is None:
             continue
         results.append((original, generalized))

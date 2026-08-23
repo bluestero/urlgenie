@@ -115,3 +115,18 @@ def test_no_hidden_state_between_calls():
     for _ in range(5):
         generalize("https://news.facebook.com/other")
     assert generalize("https://blog.facebook.com/somepage") == first
+
+
+def test_flags_stay_visible_across_wrapper_functions():
+    """generalize() and generalize_many() must expose every generalize_url() flag
+    by name, not swallow them into **kwargs -- otherwise an editor's hover/autocomplete
+    has nothing to show, and a caller can only discover the flags by reading the source."""
+    import inspect
+
+    url_flags = set(inspect.signature(generalize_url).parameters) - {"url"}
+    generalize_flags = set(inspect.signature(generalize).parameters) - {"url", "social"}
+    many_flags = set(inspect.signature(generalize_many).parameters) - {
+        "urls", "separator", "drop_invalid", "social",
+    }
+    assert url_flags <= generalize_flags
+    assert url_flags <= many_flags
