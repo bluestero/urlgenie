@@ -1,5 +1,5 @@
-__version__ = '1.2.0'
-__release__ = '20-05-2024'
+__version__ = '1.2.1'
+__release__ = '23-08-2026'
 
 
 from .urlgenie import UrlGenie
