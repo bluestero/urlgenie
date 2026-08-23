@@ -2,7 +2,7 @@
 
 import pytest
 
-from urlgenie2 import detect_platform, extract_social_handle, generalize_social, is_social_url
+from urlgenie import detect_platform, extract_social_handle, generalize_social, is_social_url
 
 
 @pytest.mark.parametrize(

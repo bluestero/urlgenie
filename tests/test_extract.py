@@ -2,7 +2,7 @@
 
 import pytest
 
-from urlgenie2 import ExtractResult, extract_contacts, validate_contacts
+from urlgenie import ExtractResult, extract_contacts, validate_contacts
 
 TEXT = """
 This is a good email: sample@gmail.com and this is a bad email: sample@image.png.

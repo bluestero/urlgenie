@@ -3,7 +3,7 @@
 import pytest
 
 from conftest import load_sample_rows
-from urlgenie2 import extract_social_handle, generalize, generalize_many
+from urlgenie import extract_social_handle, generalize, generalize_many
 
 ROWS = load_sample_rows()
 

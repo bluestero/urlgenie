@@ -2,7 +2,7 @@
 
 import pytest
 
-from urlgenie2 import (
+from urlgenie import (
     email_domain_matches,
     normalize_phone,
     validate_email,

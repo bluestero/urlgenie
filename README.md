@@ -7,196 +7,161 @@
 </h3>
 
 ## 🚀 About URL Genie
-It is a python package based on research involving over 2 million URLs, designed to handle URLs in a flexible manner for data-driven projects.
+A python package based on research involving over 2 million URLs, designed to handle
+URLs in a flexible manner for data-driven projects.
 
-## 💡 How it works
-It checks the given URL input, validates it against the URL regex, identifies each component of the URL and processes it according to the set flags.
+Version 2 is a rewrite with an RFC 3986 compliant core and small, explicit functions
+in place of one `generalize()` carrying a dozen flags. See
+[Migrating from 1.x](#-migrating-from-1x) if you are upgrading.
 
 ## ✨ Features
-- Handles both encoded and decoded URLs.
-- Handles comma separated URLs using recursion.
-- Filter out valid, invalid URLs and also bad socials with ease.
-- Email and Socials extraction from a given text and validate them.
-- URL validation using regex and over 1400 TLDs (off by default).
-- Duplicate reduction by minimizing the general and social URL patterns.
-- Domain mismatch by just extracting the domain along with the TLD and match against the email domain.
-- Researched and refined social regexes to recognize different social patterns and generalizes them to the standardized format.
+- RFC 3986 compliant parsing, normalization and validation.
+- Social profile recognition for Facebook, LinkedIn, Twitter/X, Instagram and YouTube.
+- Email, phone and social extraction from free text, with validation.
+- Domain-scoped email filtering, to drop contacts unrelated to a site.
+- Duplicate reduction: every spelling of a profile collapses to one canonical URL.
+- Public suffix validation against the bundled PSL snapshot -- no network access.
+- Pure functions: no hidden state, safe to use across threads and processes.
 
 ## ⚙️ Installation
-First things first, you need to install URL Genie by running the following command in your terminal:
 
 ```shell
 python -m pip install urlgenie
 ```
 
-That's it! Now you can use URL Genie in your code.
+Depends only on `tldextract`, used offline against its bundled public suffix list.
 
 ## ♨️ Usage
-### Importing and creating the object
-Let's first import the package and create an object of it to access its features.
 
 ```python
-from urlgenie import  UrlGenie
-from pprint import pprint
+from urlgenie import generalize, generalize_social, extract_social_handle, extract_contacts
 
-genie = UrlGenie()
+generalize("cnn.com/sports/about?a=b#c")          # 'https://cnn.com/sports/about'
+generalize("facebook.com.br/@Ahmed.Khatib")       # 'https://www.facebook.com/ahmedkhatib'
+generalize_social("x.com/elonmusk")               # 'https://twitter.com/elonmusk'
+extract_social_handle("x.com/elonmusk").handle    # 'elonmusk'
 ```
 
-### Generalizing your first URL
-Let's try to give a sample input url and get it generalized.
+Everything returns `None` on invalid input rather than a magic string, so use
+`generalize(url) or "Bad Url"` if you want a sentinel:
 
 ```python
-url = "test.something.com/hello?somequery=True#someFragment"
-gen = genie.generalize(url)
-print(gen)
+df["clean"] = df["url"].apply(lambda u: generalize(u) or "Bad Url")
 ```
 
-Would return `https://test.something.com/hello` as the output.
-
-It detects that the schema is missing and adds it. By default, it removes the query (starts with ?) and fragment (starts with #).
-
-### Different flags for generalization
-As explained previously, URL Genie breaks down the URL, identifies the components and allows you to form the URL as per your needs.
-
-This can be achieved using the flags (boolean parameters) and is explained here: [flags.md](https://github.com/bluestero/urlgenie/blob/main/flags.md).
-
-## ❗ For Nerds
-Below are the different use cases where URL Genie might come in handy.
-
-### URL Extraction
-Just provide a string text and URL Genie will extract a dict containing emails and socials for you.
+### Extracting contacts from a page
 
 ```python
-text = """
-This is a good email: sample@gmail.com and this is a bad email: sample@image.png.
-Another would be an email with a custom domain: sample@example.com.
-Sample facebook facebook.com/sample1, lets try with fb domain: fb.com/sample2.
-Lets add a bad facebook: fb.com/profile.php?
-Lets add 2 twitter formats: x.com/sample and twitter.com/sample with same handles.
-How about a linkedin pub? linkedin.com/pub/aravind-p-r/24/324/185?_l=en_US.
-Let's also add its in url: linkedin.com/in/aravind-p-r-18532424/"""
-result_dict = genie.extract_from_text(text)
-pprint(result_dict)
+result = extract_contacts(scraped_text)
+result.emails      # {'sales@example.com', 'someone@gmail.com'}
+result.facebook    # {'https://www.facebook.com/example'}
+result.phones      # {'+14155552671'}
+
+#-Keep only emails belonging to the site being scraped-#
+validated = validate_contacts(result, url="https://www.example.com/contact")
+validated.emails   # {'sales@example.com'}
 ```
 
-This would return:
+## 📋 API
+
+| Function | Purpose |
+| --- | --- |
+| `generalize(url, social=True, ...)` | Canonical URL, collapsing recognized social links to their profile |
+| `generalize_url(url, ...)` | Canonical URL only; `keep_path` / `keep_query` / `keep_fragment` / `keep_userinfo` / `force_https` / `lower` |
+| `generalize_many(urls, ...)` | Same for a delimited string or iterable; forwards every option |
+| `generalize_social(url)` | Canonical social profile URL, or `None` |
+| `extract_social_handle(url)` | `SocialHandle(platform, handle, url, original_handle, rule)`, or `None` |
+| `detect_platform(url)` / `is_social_url(url)` | Platform lookup and membership test |
+| `parse_url(url)` | RFC 3986 parse + normalize into a `ParsedUrl`, or `None` |
+| `validate_url(url)` | Syntactic validity, public-suffix check, scheme allowlist |
+| `validate_email(email, url=None)` | Syntax, RFC 5321 length limits, optional site-domain match |
+| `validate_phone(phone)` / `normalize_phone(phone)` | Pragmatic digit-count validation |
+| `validate_social(url)` | Whether a URL is a recognized profile |
+| `extract_contacts(text, include=, exclude=)` | Emails, phones and socials from free text |
+| `validate_contacts(result, url=None)` | Filter an `ExtractResult`; scope emails to a site |
+
+## 🔀 Migrating from 1.x
+
+Version 2 removes the `UrlGenie` class. Import the functions directly.
+
+```python
+# 1.x
+from urlgenie import UrlGenie
+genie = UrlGenie(bad_url="Bad Url", proper_tlds=True)
+genie.generalize(url)
+
+# 2.x
+from urlgenie import generalize
+generalize(url) or "Bad Url"
+```
+
+| 1.x | 2.x |
+| --- | --- |
+| `UrlGenie(bad_url=..., bad_social=...)` | functions return `None`; use `or "Bad Url"` |
+| `proper_tlds=True` | always on, via the public suffix list |
+| `generalize(url)` | `generalize(url)` |
+| `generalize(url, get_handle=True)` | `extract_social_handle(url).handle` |
+| `generalize(url, get_domain=True)` | `parse_url(url).domain` |
+| `generalize(url, get_domain_with_tld=True)` | `parse_url(url).registrable_domain` |
+| `generalize(url, comma_separated=True)` | `generalize_many(url)` |
+| `generalize(url, social_rectification=False)` | `generalize(url, social=False)` |
+| `generalize(url, keep_periods=False)` | always on for Facebook, which ignores periods |
+| `extract_from_text(text)` | `extract_contacts(text)` |
+| `validate_result_dict(d, url=...)` | `validate_contacts(result, url=...)` |
+| `update_subdomains()` / `get_subdomains()` | removed; `generalize()` keeps no state |
+
+Behaviour changes worth knowing:
+- URLs 1.x silently rejected now parse: TLDs longer than four characters, subdomain
+  labels longer than ten, ports, IDN hosts, IP literals, and `example.com?a=b`.
+  Measured against the Tranco top 1M, 1.x rejected 4.72% of real domains; 2.x rejects 0.
+- Twitter handles follow Twitter's actual rules (15 characters, no periods), so some
+  strings 1.x accepted are now rejected.
+- Facebook handles have periods stripped, since Facebook ignores them when resolving
+  profiles. LinkedIn and Instagram periods are significant and preserved.
+
+## 🧩 Adding a social pattern
+
+Every pattern is a separate named `Rule` in `urlgenie/config.py`. Rules are tried in
+order and the first yielding a non-reserved handle wins, so supporting a new URL shape
+is one line and touches nothing else:
+
+```python
+FACEBOOK_RULES = (
+    Rule("fb_query_id",  re.compile(r"[?&](?:id|gid|__user)=(?P<id>\d{5,})", _I)),
+    Rule("fb_media_set", re.compile(r"[?&]set=a\.(?:\d+\.)*(?P<id>\d{5,})", _I)),
+    ...
+)
+```
+
+A rule exposes an `id` or `handle` named group; an optional `subdir` group or attribute
+sets the canonical path prefix. `transform=` handles the rare case needing real logic,
+such as LinkedIn's legacy `/pub/` to `/in/` slug conversion.
+
+## 📐 RFC 3986
+
+`urlgenie/uri.py` implements scheme and host case normalization (§3.1, §3.2.2), IDNA
+punycoding, default-port removal (§3.2.3), dot-segment resolution (§5.2.4) and
+percent-encoding normalization (§2.1, §6.2.2.2). The last is idempotent, unlike
+`quote(unquote(url))`, which corrupts `%2520` and literal `%`.
+
+## ⚡ Performance
+
+Roughly 60,000 URLs per second single-threaded (~17s for one million), measured over a
+corpus of one million distinct URLs. Every function is pure, so `multiprocessing.Pool`
+scales it linearly.
 
 ```shell
-{'email': {'sample@example.com', 'sample@gmail.com'},
- 'facebook': {'fb.com/sample2.', 'facebook.com/sample1', 'fb.com/profile.php'},
- 'instagram': set(),
- 'linkedin': {'linkedin.com/in/aravind-p-r-18532424', 'linkedin.com/pub/aravind-p-r/24/324/185'},
- 'phone': set(),
- 'twitter': {'x.com/sample', 'twitter.com/sample'}}
+python tools/benchmark.py 1000000
 ```
 
-### Extract Validation
-As you can see, it has strict regexes which prevented the bad email (sample@image.png) from being extracted.
-
-But it has extracted fb.com/profile.php which is not really a URL we want since it does not lead to any person / organization / page.
-
-Also, there are duplicates for twitter having the same handle and are not really in a standardized format.
-
-For that, we can validate the given extract to remove invalid data and standardize the valid ones.
-
-```python
-result_dict = genie.extract_from_text(text)
-validated_dict = genie.validate_result_dict(result_dict)
-pprint(validated_dict)
-```
-
-This would return:
+## 🧪 Tests
 
 ```shell
-{'email': {'sample@example.com', 'sample@gmail.com'},
- 'facebook': {'https://www.facebook.com/sample1', 'https://www.facebook.com/sample2.'},
- 'instagram': set(),
- 'linkedin': {'https://www.linkedin.com/in/aravind-p-r-18532424'},
- 'phone': set(),
- 'twitter': {'https://twitter.com/sample'}}
+python -m pytest tests -q      # 284 tests
 ```
 
-With this, we have removed the duplicates, invalid URLs like fb.com/profile.php, generalized URLs such as LinkedIn PUB to IN.
-
-### Email Domain Validation
-When you scrape websites for contact info, you might get a lot of emails, and not all of them would be related to the organization.
-
-To filter out the ones which are not related to the organization, we can use the email validation.
-
-```python
-result_dict = genie.extract_from_text(text)
-validated_dict = genie.validate_result_dict(result_dict, url = "https://www.example.com/ContactUs")
-pprint(validated_dict)
-```
-
-This would return:
-
-```shell
-{'email': {'sample@example.com'},
- 'facebook': {'https://www.facebook.com/sample1', 'https://www.facebook.com/sample2.'},
- 'instagram': set(),
- 'linkedin': {'https://www.linkedin.com/in/aravind-p-r-18532424'},
- 'phone': set(),
- 'twitter': {'https://twitter.com/sample'}}
-```
-
-Now, we have removed the sample@gmail.com which is not related to the organization's URL we have provided.
-
-This would prove to be helpful when making scrapers or processing and cleaning data.
-
-### Social Filtration
-You can filter out valid URLs, invalid URLs and invalid socials when you have data in bulk to deal with.
-
-For this example, we would be using data stored in a CSV.
-
-**Test.CSV**
-
-```csv
-url
-badbadwebsite?!,something
-fb.com/people/hello
-twitter.com/intent
-https://x.com/intent/follow?original_referer=&region=follow_link&screen_name=elonmusk&tw_p=followbutton&variant=2&mx=2
-anotherbadwebsite???
-```
-
-**Test.py***
-
-```python
-import pandas as pd
-from pprint import pprint
-from urlgenie import  UrlGenie
-
-#-Reading the CSV-#
-df = pd.read_csv("test.csv", encoding = "utf-8")
-
-#-Creating UrlGenie object with custom texts for Bad Url and Socials, and TLD validation-#
-genie = UrlGenie(bad_url = "Bad Url", bad_social = "Bad Social", proper_tlds = True)
-
-#-Applying the generalize function and creating a new column-#
-df["gen"] = df["url"].apply(genie.generalize)
-
-#-Printing the updated dataframe-#
-pprint(df)
-```
-
-Would return:
-
-```
-                                                 url                             gen
-0                                    badbadwebsite?!                         Bad Url
-1                                fb.com/people/hello  https://www.facebook.com/hello
-2                                 twitter.com/intent                      Bad Social
-3                                random.haz/somePath                         Bad Url
-4  https://x.com/intent/follow?original_referer=&...    https://twitter.com/elonmusk
-5                               anotherbadwebsite???                         Bad Url
-```
-
-As you can see, we got genrealized URLs for the valid ones and Bad Url, Bad Social for the invalid ones.
-
-The reason why random.haz was deemed as invalid is due to the proper_tlds flag which verified the tld 'haz' agaisnt over 1400 TLDs.
-
-As for the twitter one, intent is not a valid twitter page, hence a valid url but an invalid social.
+`tests/sample.csv` is the reference sheet and is treated as the spec: every row is
+asserted for both the generalized URL and the extracted handle.
 
 ## 📖 Resources
 - [Sample Sheet](https://docs.google.com/spreadsheets/d/12QHwZxiDv80ksFngQK10hkOmPQLRpI0s6dPfe6mRuxk/edit?usp=sharing)

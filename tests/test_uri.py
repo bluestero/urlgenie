@@ -2,7 +2,7 @@
 
 import pytest
 
-from urlgenie2 import normalize_component, normalize_host, parse_url, remove_dot_segments
+from urlgenie import normalize_component, normalize_host, parse_url, remove_dot_segments
 
 
 @pytest.mark.parametrize(

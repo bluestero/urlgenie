@@ -1,4 +1,4 @@
-"""Immutable result types shared across urlgenie2."""
+"""Immutable result types shared across urlgenie."""
 
 from __future__ import annotations
 

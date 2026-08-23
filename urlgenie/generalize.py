@@ -1,4 +1,4 @@
-"""URL generalization -- the standardizing counterpart to :mod:`urlgenie2.uri`."""
+"""URL generalization -- the standardizing counterpart to :mod:`urlgenie.uri`."""
 
 from __future__ import annotations
 

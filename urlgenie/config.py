@@ -1,6 +1,6 @@
 """All patterns and lookup tables live here, one entry at a time.
 
-Every social pattern is a separate, named :class:`~urlgenie2.types.Rule`.
+Every social pattern is a separate, named :class:`~urlgenie.types.Rule`.
 Rules are tried in order and the first one that yields a non-reserved handle
 wins, so adding support for a new URL shape means appending one line -- no
 existing pattern has to be touched or re-tested.

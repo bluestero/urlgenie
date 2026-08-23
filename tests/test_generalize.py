@@ -2,7 +2,7 @@
 
 import pytest
 
-from urlgenie2 import generalize, generalize_many, generalize_url
+from urlgenie import generalize, generalize_many, generalize_url
 
 
 @pytest.mark.parametrize(
