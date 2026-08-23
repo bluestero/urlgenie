@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Genie - Playground</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <img src="mascot.png" alt="URL Genie mascot" class="mascot">
+    <div class="brand-text">
+      <p class="brand-title">URL Genie - Playground</p>
+      <p class="brand-sub">URL generalization, contact extraction and validation, running live in your browser.</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="pip-line">pip install urlgenie</div>
+    <span class="runtime-note booting" id="runtime-status"><span class="dot"></span><span class="status-text">Booting Python runtime…</span></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="validate">Validate</div>
+  <div class="tab" data-tab="generalize">Generalize</div>
+  <div class="tab" data-tab="many">Generalize Many</div>
+  <div class="tab" data-tab="extract">Extract Data</div>
+</div>
+
+<!-- ================= PANEL 0: validators ================= -->
+<div class="panel active" id="panel-validate">
+  <p class="blurb">Four independent checks — <code>validate_url</code>, <code>validate_email</code>, <code>validate_phone</code>, <code>validate_social</code> — each returns a plain true/false.</p>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">URL</span>
+      <span class="row-desc"><code>validate_url(url)</code> — syntactically valid, resolvable host, real public suffix.</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-url-input" value="https://example.photography/portfolio">
+      <label class="field-inline"><input type="checkbox" id="val-url-require-suffix" checked> require real TLD</label>
+      <button class="run" id="val-url-btn" disabled>Check</button>
+      <span class="row-result" id="val-url-result"></span>
+    </div>
+  </div>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">Email</span>
+      <span class="row-desc"><code>validate_email(email, url=)</code> — syntax check, optionally scoped to a site's domain.</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-email-input" value="sample@image.png">
+      <label class="field-inline"><input type="checkbox" id="val-email-domain-check"> must match domain</label>
+      <input type="text" id="val-email-domain-input" class="narrow" placeholder="https://www.example.com">
+      <button class="run" id="val-email-btn" disabled>Check</button>
+      <span class="row-result" id="val-email-result"></span>
+    </div>
+  </div>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">Phone</span>
+      <span class="row-desc"><code>validate_phone(phone)</code> — plausible digit count, rejects obvious ids/timestamps.</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-phone-input" value="+1 (415) 555-2671">
+      <button class="run" id="val-phone-btn" disabled>Check</button>
+      <span class="row-result" id="val-phone-result"></span>
+    </div>
+  </div>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">Social</span>
+      <span class="row-desc"><code>validate_social(url)</code> — a valid URL is not necessarily a valid social profile.</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-social-input" value="twitter.com/intent">
+      <button class="run" id="val-social-btn" disabled>Check</button>
+      <span class="row-result" id="val-social-result"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANEL 1: generalize() ================= -->
+<div class="panel" id="panel-generalize">
+  <p class="blurb">
+    <code>generalize(url)</code> — cleans and standardizes a single URL. Automatically recognizes
+    and canonicalizes social profile links (Facebook, LinkedIn, Twitter/X, Instagram, YouTube) as
+    well as ordinary websites.
+  </p>
+
+  <input type="text" id="gen-input" value="facebook.com/#!/AhmedKhatib..90">
+  <button class="example-link" onclick="fillExample('gen-input')">Try another example</button>
+
+  <div class="options">
+    <label class="toggle">
+      <input type="checkbox" id="gen-social" checked>
+      <span class="label-text">Recognize social profiles</span>
+      <span class="desc"><b>social</b> — rewrite Facebook/LinkedIn/Twitter/Instagram/YouTube links to their canonical profile URL instead of treating them as a plain website. When a match is found, every other flag below is ignored — the social result is always the canonical profile URL, regardless of Keep query / Keep fragment / Lowercase / Keep path / Keep userinfo / Force HTTPS. Turn this off to make those flags apply.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="gen-keep-query">
+      <span class="label-text">Keep query string</span>
+      <span class="desc"><b>keep_query</b> — preserve <code>?key=value</code> parameters instead of stripping them.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="gen-keep-fragment">
+      <span class="label-text">Keep fragment</span>
+      <span class="desc"><b>keep_fragment</b> — preserve the <code>#fragment</code> portion of the URL.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="gen-lower">
+      <span class="label-text">Lowercase output</span>
+      <span class="desc"><b>lower</b> — return the final result entirely in lowercase.</span>
+    </label>
+  </div>
+
+  <details class="advanced">
+    <summary>Advanced flags (keep_path, keep_userinfo, force_https)</summary>
+    <div class="options" style="margin-top:10px;">
+      <label class="toggle">
+        <input type="checkbox" id="gen-keep-path" checked>
+        <span class="label-text">Keep path</span>
+        <span class="desc"><b>keep_path</b> — preserve everything after the domain. Turn off to reduce a URL to just its domain.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="gen-keep-userinfo">
+        <span class="label-text">Keep userinfo</span>
+        <span class="desc"><b>keep_userinfo</b> — preserve a <code>user@</code> prefix if one is present in the URL.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="gen-force-https" checked>
+        <span class="label-text">Force HTTPS</span>
+        <span class="desc"><b>force_https</b> — rewrite <code>http://</code> to <code>https://</code> in the result.</span>
+      </label>
+    </div>
+  </details>
+
+  <p class="meta-note" style="margin: -6px 0 14px;">
+    ⚠ If <b>Recognize social profiles</b> is on and the URL matches one, its canonical
+    profile URL is returned as-is — every other flag above is ignored for that result.
+  </p>
+
+  <div>
+    <button class="run" id="gen-btn" disabled>Generalize</button>
+  </div>
+
+  <div class="result-card hidden" id="gen-result">
+    <div class="result-main" id="gen-result-main"></div>
+    <div class="chips" id="gen-result-chips"></div>
+    <div class="meta-note" id="gen-result-note"></div>
+  </div>
+</div>
+
+<!-- ================= PANEL 2: generalize_many() ================= -->
+<div class="panel" id="panel-many">
+  <p class="blurb">
+    <code>generalize_many(urls)</code> — cleans a batch of URLs at once, one per line or
+    comma-separated. Every result stays aligned with its input, even the invalid ones.
+    Rows that generalize to the same result — however differently they were spelled —
+    are flagged as duplicates.
+  </p>
+
+  <textarea id="many-input" rows="11">fb.com/@ahmedkhatib
+facebook.com/@ahmedkhatib
+facebook.com/#!/ahmedkhatib
+facebook.com/profile.php?ref=name&id=123123123
+facebook.com/group.php?gid=123123123
+https://www.linkedin.com/pub/mark-adams/28/1b8/a?_l=en_US
+linkedin.com/in/mark-adams-00a1b828
+ie.linkedin.com/in/mark-adams-00a1b828
+cnn.com/sports/about/anythinggoeshere?keyvalue=something#somefragment
+https://cnn.com/sports/about/anythinggoeshere/?other=query#anotherfragment
+facebook/com</textarea>
+
+  <p class="section-header">Flags</p>
+  <div class="options">
+    <label class="toggle">
+      <input type="text" id="many-separator" style="width:50px; padding:2px 6px; margin-right:4px;" value=",">
+      <span class="label-text">Separator</span>
+      <span class="desc"><b>separator</b> — used when pasting one line instead of many; ignored when your input already has line breaks.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-drop-invalid">
+      <span class="label-text">Drop invalid entries</span>
+      <span class="desc"><b>drop_invalid</b> — omit URLs that failed to generalize instead of showing them as Invalid in the table.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-social" checked>
+      <span class="label-text">Recognize social profiles</span>
+      <span class="desc"><b>social</b> — same as in Generalize, applied to every row. For any row that matches a social profile, every other flag on this tab is ignored for that row — the other flags only apply to rows that don't match a social profile.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-keep-query">
+      <span class="label-text">Keep query string</span>
+      <span class="desc"><b>keep_query</b> — preserve <code>?key=value</code> parameters instead of stripping them.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-keep-fragment">
+      <span class="label-text">Keep fragment</span>
+      <span class="desc"><b>keep_fragment</b> — preserve the <code>#fragment</code> portion of the URL.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-lower">
+      <span class="label-text">Lowercase output</span>
+      <span class="desc"><b>lower</b> — return every result entirely in lowercase.</span>
+    </label>
+  </div>
+
+  <details class="advanced">
+    <summary>Advanced flags (keep_path, keep_userinfo, force_https)</summary>
+    <div class="options" style="margin-top:10px;">
+      <label class="toggle">
+        <input type="checkbox" id="many-keep-path" checked>
+        <span class="label-text">Keep path</span>
+        <span class="desc"><b>keep_path</b> — preserve everything after the domain. Turn off to reduce every URL to just its domain.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="many-keep-userinfo">
+        <span class="label-text">Keep userinfo</span>
+        <span class="desc"><b>keep_userinfo</b> — preserve a <code>user@</code> prefix if one is present in the URL.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="many-force-https" checked>
+        <span class="label-text">Force HTTPS</span>
+        <span class="desc"><b>force_https</b> — rewrite <code>http://</code> to <code>https://</code> in every result.</span>
+      </label>
+    </div>
+  </details>
+
+  <p class="meta-note" style="margin: -6px 0 14px;">
+    ⚠ If <b>Recognize social profiles</b> is on, any row that matches one returns its
+    canonical profile URL as-is — the other flags above are ignored for that row only.
+  </p>
+
+  <p class="section-header">Duplicate Detection</p>
+  <div class="options">
+    <label class="toggle">
+      <input type="checkbox" id="many-export-duplicates" checked>
+      <span class="label-text">Include duplicate columns in export</span>
+      <span class="desc">Adds <b>duplicate_group</b> and <b>duplicate_count</b> columns to the CSV/TSV export below. Doesn't affect the table.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="many-group-duplicates">
+      <span class="label-text">Group duplicates together</span>
+      <span class="desc">Reorders the table so rows in the same duplicate group sit next to each other. Off by default — every other flag on this tab keeps rows in their original input order, and this does too unless you turn it on.</span>
+    </label>
+  </div>
+
+  <div>
+    <button class="run" id="many-btn" disabled>Generalize All</button>
+  </div>
+
+  <div class="result-card hidden" id="many-result">
+    <div class="error-note" id="many-error" style="display:none;"></div>
+    <table class="results">
+      <thead><tr><th>Input</th><th>Result</th></tr></thead>
+      <tbody id="many-table-body"></tbody>
+    </table>
+    <div class="summary-line" id="many-summary"></div>
+    <div class="dup-groups" id="many-dup-groups"></div>
+
+    <div class="export-row">
+      <span class="export-label">Export:</span>
+      <select id="many-export-format">
+        <option value="csv">CSV</option>
+        <option value="tsv">TSV</option>
+      </select>
+      <button class="export-btn secondary" id="many-copy-btn">Copy</button>
+      <button class="export-btn" id="many-download-btn">Download</button>
+      <span class="copy-feedback" id="many-copy-feedback"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANEL 3: extract_contacts() ================= -->
+<div class="panel" id="panel-extract">
+  <p class="blurb">
+    <code>extract_contacts(text)</code> — pulls emails, phone numbers and social profile links
+    out of any block of text: a scraped "Contact Us" page, an email signature, anything.
+  </p>
+
+  <textarea id="extract-input" rows="10">Reach our sales team at sales@example.com or call +1 (415) 555-2671.
+Follow us: facebook.com/jhumri, x.com/jhumri, and don't miss
+our old broken image link sample@image.png (not a real email).
+
+Our team is also on Instagram at instagram.com/jhumri and LinkedIn at
+linkedin.com/company/jhumri. Company updates go out on youtube.com/@jhumri
+too. For anything urgent outside business hours, email john.doe@gmail.com
+directly instead of the team inbox.</textarea>
+
+  <div class="options" style="margin-top:14px;">
+    <label class="toggle"><input type="checkbox" id="extract-cat-emails" checked><span class="label-text">Emails</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-phones" checked><span class="label-text">Phones</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-facebook" checked><span class="label-text">Facebook</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-twitter" checked><span class="label-text">Twitter</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-instagram" checked><span class="label-text">Instagram</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-linkedin" checked><span class="label-text">LinkedIn</span></label>
+    <label class="toggle"><input type="checkbox" id="extract-cat-youtube" checked><span class="label-text">YouTube</span></label>
+  </div>
+  <div style="font-size:0.78rem; color:var(--muted); margin: -6px 0 14px;">
+    <b>include</b> — which categories to look for. Deselect a type to skip it entirely.
+  </div>
+
+  <label class="toggle" style="max-width: 420px;">
+    <input type="checkbox" id="extract-domain-check">
+    <span class="label-text">Only keep emails matching a site</span>
+    <span class="desc"><b>validate_contacts(result, url=...)</b> — drop emails whose domain doesn't match the site you scraped, e.g. filter out a personal gmail found on a company page.</span>
+  </label>
+  <input type="text" id="extract-domain-input" placeholder="https://www.example.com" style="margin-top:8px; max-width:300px;">
+
+  <div style="margin-top:14px;">
+    <button class="run" id="extract-btn" disabled>Extract</button>
+  </div>
+
+  <div class="result-card hidden" id="extract-result">
+    <div class="error-note" id="extract-error" style="display:none;"></div>
+    <div class="category-row"><div class="cat-label">EMAILS</div><div class="chips" id="extract-chips-emails"></div></div>
+    <div class="category-row"><div class="cat-label">PHONES</div><div class="chips" id="extract-chips-phones"></div></div>
+    <div class="category-row"><div class="cat-label">FACEBOOK</div><div class="chips" id="extract-chips-facebook"></div></div>
+    <div class="category-row"><div class="cat-label">TWITTER</div><div class="chips" id="extract-chips-twitter"></div></div>
+    <div class="category-row"><div class="cat-label">INSTAGRAM</div><div class="chips" id="extract-chips-instagram"></div></div>
+    <div class="category-row"><div class="cat-label">LINKEDIN</div><div class="chips" id="extract-chips-linkedin"></div></div>
+    <div class="category-row"><div class="cat-label">YOUTUBE</div><div class="chips" id="extract-chips-youtube"></div></div>
+
+    <div class="export-row">
+      <span class="export-label">Export:</span>
+      <select id="extract-export-format">
+        <option value="csv">CSV</option>
+        <option value="tsv">TSV</option>
+      </select>
+      <button class="export-btn secondary" id="extract-copy-btn">Copy</button>
+      <button class="export-btn" id="extract-download-btn">Download</button>
+      <label class="field-inline">
+        <input type="checkbox" id="extract-keep-empty">
+        Keep empty columns
+      </label>
+      <span class="copy-feedback" id="extract-copy-feedback"></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://pypi.org/project/urlgenie/" target="_blank">PyPI</a> ·
+    <a href="https://github.com/bluestero/urlgenie" target="_blank">GitHub</a> ·
+    <a href="https://github.com/bluestero/urlgenie#-api" target="_blank">Full API</a> ·
+    <a href="https://github.com/bluestero/urlgenie" target="_blank" class="footer-star"> Star it</a> ·
+    <a href="https://github.com/bluestero/urlgenie/issues" target="_blank">Report Issue</a>
+  </div>
+  <div class="footer-credit">
+    Powered by <a href="https://pyodide.org/" target="_blank">Pyodide</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
