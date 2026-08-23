@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Genie — Live Demo</title>
+<style>
+  :root {
+    --bg: #0a0e14; --panel: #161c25; --border: #3a4250;
+    --text: #f0f3f7; --muted: #a9b3c0;
+    --accent: #6cb2ff; --green: #4fc766; --red: #f8756c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 900px; margin: 0 auto; padding: 32px 20px 80px;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 14px; padding-bottom: 22px;
+    border-bottom: 1px solid var(--border); margin-bottom: 28px;
+  }
+  .topbar .brand { display: flex; align-items: center; gap: 14px; }
+  .topbar .mascot { font-size: 2rem; line-height: 1; }
+  .topbar .brand-title { font-size: 1.25rem; font-weight: 700; margin: 0; }
+  .topbar .brand-sub { color: var(--muted); margin: 2px 0 0; font-size: 0.85rem; }
+  .runtime-note {
+    font-size: 0.8rem; color: var(--muted);
+    padding: 6px 12px; border: 1px solid var(--border);
+    border-radius: 999px; white-space: nowrap;
+  }
+  .runtime-note .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--green); margin-right:6px; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab {
+    padding: 10px 18px; cursor: pointer; color: var(--muted);
+    border-bottom: 2px solid transparent; font-size: 0.95rem; user-select: none;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab:hover { color: var(--text); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .blurb { color: var(--muted); font-size: 0.9rem; margin: 0 0 20px; line-height: 1.5; }
+  .blurb code { background: var(--panel); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; }
+
+  textarea, input[type=text] {
+    width: 100%; background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 10px 12px;
+    font-family: "SF Mono", Consolas, monospace; font-size: 0.9rem;
+    resize: vertical;
+  }
+  textarea:focus, input[type=text]:focus { outline: 1px solid var(--accent); }
+
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  .toggle {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; cursor: pointer;
+  }
+  .toggle input { accent-color: var(--accent); }
+  .toggle .label-text { font-size: 0.85rem; }
+  .toggle .desc {
+    display: none; position: absolute; background: #010409; border: 1px solid var(--border);
+    padding: 8px 10px; border-radius: 6px; font-size: 0.78rem; color: var(--muted);
+    width: 220px; margin-top: 46px; z-index: 5;
+  }
+  .toggle:hover .desc { display: block; }
+
+  details.advanced { margin: 4px 0 16px; }
+  details.advanced summary {
+    cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 4px 0;
+  }
+
+  button.run {
+    background: var(--accent); color: #04101f; border: none; font-weight: 600;
+    padding: 10px 22px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; margin-top: 4px;
+  }
+  button.run:hover { filter: brightness(1.1); }
+  .example-link {
+    background: none; border: none; color: var(--accent); font-size: 0.8rem;
+    cursor: pointer; padding: 0; margin-left: 12px;
+  }
+
+  .result-card {
+    margin-top: 20px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .result-main { font-family: "SF Mono", Consolas, monospace; font-size: 0.95rem; word-break: break-all; }
+  .result-main .arrow { color: var(--muted); margin: 0 8px; }
+  .result-main .ok { color: var(--green); }
+  .result-main .bad { color: var(--red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 10px; font-size: 0.78rem; color: var(--muted);
+  }
+  .chip b { color: var(--text); font-weight: 500; }
+  .meta-note { font-size: 0.78rem; color: var(--muted); margin-top: 10px; }
+
+  table.results { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 0.85rem; }
+  table.results th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  table.results td { padding: 8px 10px; border-bottom: 1px solid var(--border); font-family: "SF Mono", Consolas, monospace; }
+  .badge-invalid { color: var(--red); background: rgba(248,81,73,0.1); padding: 2px 8px; border-radius: 999px; font-size: 0.78rem; }
+  .summary-line { color: var(--muted); font-size: 0.82rem; margin-top: 10px; }
+
+  .category-row { margin-top: 14px; }
+  .category-row .cat-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  .category-row .empty { color: var(--muted); font-size: 0.8rem; font-style: italic; }
+
+  footer {
+    margin-top: 60px; color: var(--muted); font-size: 0.85rem;
+    border-top: 1px solid var(--border); padding-top: 22px;
+  }
+  .footer-row {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .footer-links { font-size: 0.95rem; }
+  .pip-line {
+    display: inline-block; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px; font-family: monospace; font-size: 0.78rem; color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mascot">🧞</span>
+    <div>
+      <p class="brand-title">URL Genie — Live Demo</p>
+      <p class="brand-sub">URL generalization, contact extraction and validation, running live in your browser.</p>
+    </div>
+  </div>
+  <span class="runtime-note"><span class="dot"></span>MOCKUP — real version runs the actual PyPI package via Pyodide</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="generalize">Generalize</div>
+  <div class="tab" data-tab="many">Generalize Many</div>
+  <div class="tab" data-tab="extract">Extract Data</div>
+</div>
+
+<!-- ================= PANEL 1: generalize() ================= -->
+<div class="panel active" id="panel-generalize">
+  <p class="blurb">
+    <code>generalize(url)</code> — cleans and standardizes a single URL. Automatically recognizes
+    and canonicalizes social profile links (Facebook, LinkedIn, Twitter/X, Instagram, YouTube) as
+    well as ordinary websites.
+  </p>
+
+  <input type="text" id="gen-input" value="facebook.com/#!/AhmedKhatib..90">
+  <button class="example-link" onclick="fillExample('gen-input','instagram.com/accounts/login/?next=/ahmedkhatib/')">try another example</button>
+
+  <div class="options">
+    <label class="toggle">
+      <input type="checkbox" checked>
+      <span class="label-text">Recognize social profiles</span>
+      <span class="desc"><b>social</b> — rewrite Facebook/LinkedIn/Twitter/Instagram/YouTube links to their canonical profile URL instead of treating them as a plain website.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox">
+      <span class="label-text">Keep query string</span>
+      <span class="desc"><b>keep_query</b> — preserve <code>?key=value</code> parameters instead of stripping them.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox">
+      <span class="label-text">Keep fragment</span>
+      <span class="desc"><b>keep_fragment</b> — preserve the <code>#fragment</code> portion of the URL.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox">
+      <span class="label-text">Lowercase output</span>
+      <span class="desc"><b>lower</b> — return the final result entirely in lowercase.</span>
+    </label>
+  </div>
+
+  <details class="advanced">
+    <summary>Advanced flags (keep_path, keep_userinfo, force_https)</summary>
+    <div class="options" style="margin-top:10px;">
+      <label class="toggle">
+        <input type="checkbox" checked>
+        <span class="label-text">Keep path</span>
+        <span class="desc"><b>keep_path</b> — preserve everything after the domain. Turn off to reduce a URL to just its domain.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox">
+        <span class="label-text">Keep userinfo</span>
+        <span class="desc"><b>keep_userinfo</b> — preserve a <code>user@</code> prefix if one is present in the URL.</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" checked>
+        <span class="label-text">Force HTTPS</span>
+        <span class="desc"><b>force_https</b> — rewrite <code>http://</code> to <code>https://</code> in the result.</span>
+      </label>
+    </div>
+  </details>
+
+  <div>
+    <button class="run" onclick="showPanel('gen-result')">Generalize</button>
+  </div>
+
+  <div class="result-card" id="gen-result">
+    <div class="result-main">facebook.com/#!/AhmedKhatib..90 <span class="arrow">→</span> <span class="ok">https://www.facebook.com/ahmedkhatib90</span></div>
+    <div class="chips">
+      <div class="chip">platform: <b>facebook</b></div>
+      <div class="chip">handle: <b>ahmedkhatib90</b></div>
+      <div class="chip">original handle: <b>AhmedKhatib..90</b></div>
+      <div class="chip">rule matched: <b>fb_fragment_handle</b></div>
+    </div>
+    <div class="meta-note">Recognized as a social profile — periods stripped and case folded, since Facebook ignores both when resolving a profile URL.</div>
+  </div>
+</div>
+
+<!-- ================= PANEL 2: generalize_many() ================= -->
+<div class="panel" id="panel-many">
+  <p class="blurb">
+    <code>generalize_many(urls)</code> — cleans a batch of URLs at once, one per line or
+    comma-separated. Every result stays aligned with its input, even the invalid ones.
+  </p>
+
+  <textarea id="many-input" rows="4">facebook.com
+facebook/com
+dummy.com
+instagram.com/ahmed</textarea>
+
+  <div class="options">
+    <label class="toggle">
+      <input type="text" style="width:50px; padding:2px 6px; margin-right:4px;" value=",">
+      <span class="label-text">Separator</span>
+      <span class="desc"><b>separator</b> — used when pasting one line instead of many; ignored when your input already has line breaks.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox">
+      <span class="label-text">Drop invalid entries</span>
+      <span class="desc"><b>drop_invalid</b> — omit URLs that failed to generalize instead of showing them as Invalid in the table.</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" checked>
+      <span class="label-text">Recognize social profiles</span>
+      <span class="desc"><b>social</b> — same as in Generalize, applied to every row.</span>
+    </label>
+  </div>
+  <div style="font-size:0.78rem; color:var(--muted); margin: -8px 0 16px;">
+    Keep query / keep fragment / lowercase / keep path / keep userinfo / force HTTPS — same flags as the Generalize tab, applied to every row.
+  </div>
+
+  <div>
+    <button class="run" onclick="showPanel('many-result')">Generalize All</button>
+  </div>
+
+  <div class="result-card" id="many-result">
+    <table class="results">
+      <thead><tr><th>Input</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>facebook.com</td><td>https://facebook.com</td></tr>
+        <tr><td>facebook/com</td><td><span class="badge-invalid">✗ invalid</span></td></tr>
+        <tr><td>dummy.com</td><td>https://dummy.com</td></tr>
+        <tr><td>instagram.com/ahmed</td><td>https://www.instagram.com/ahmed</td></tr>
+      </tbody>
+    </table>
+    <div class="summary-line">3 of 4 valid</div>
+  </div>
+</div>
+
+<!-- ================= PANEL 3: extract_contacts() ================= -->
+<div class="panel" id="panel-extract">
+  <p class="blurb">
+    <code>extract_contacts(text)</code> — pulls emails, phone numbers and social profile links
+    out of any block of text: a scraped "Contact Us" page, an email signature, anything.
+  </p>
+
+  <textarea id="extract-input" rows="6">Reach our sales team at sales@example.com or call +1 (415) 555-2671.
+Follow us: facebook.com/example, x.com/example, and don't miss
+our old broken image link sample@image.png (not a real email).</textarea>
+
+  <div class="options" style="margin-top:14px;">
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">Emails</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">Phones</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">Facebook</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">Twitter</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">Instagram</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">LinkedIn</span></label>
+    <label class="toggle"><input type="checkbox" checked><span class="label-text">YouTube</span></label>
+  </div>
+  <div style="font-size:0.78rem; color:var(--muted); margin: -6px 0 14px;">
+    <b>include</b> — which categories to look for. Deselect a type to skip it entirely.
+  </div>
+
+  <label class="toggle" style="max-width: 420px;">
+    <input type="checkbox">
+    <span class="label-text">Only keep emails matching a site</span>
+    <span class="desc"><b>validate_contacts(result, url=...)</b> — drop emails whose domain doesn't match the site you scraped, e.g. filter out a personal gmail found on a company page.</span>
+  </label>
+  <input type="text" placeholder="https://www.example.com" style="margin-top:8px; max-width:300px;">
+
+  <div style="margin-top:14px;">
+    <button class="run" onclick="showPanel('extract-result')">Extract</button>
+  </div>
+
+  <div class="result-card" id="extract-result">
+    <div class="category-row">
+      <div class="cat-label">EMAILS</div>
+      <div class="chips"><div class="chip">sales@example.com</div></div>
+      <div class="meta-note">sample@image.png was correctly ignored — not a real email.</div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">PHONES</div>
+      <div class="chips"><div class="chip">+14155552671</div></div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">FACEBOOK</div>
+      <div class="chips"><div class="chip">https://www.facebook.com/example</div></div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">TWITTER</div>
+      <div class="chips"><div class="chip">https://twitter.com/example</div></div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">INSTAGRAM</div>
+      <div class="empty">None found</div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">LINKEDIN</div>
+      <div class="empty">None found</div>
+    </div>
+    <div class="category-row">
+      <div class="cat-label">YOUTUBE</div>
+      <div class="empty">None found</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-row">
+    <div class="pip-line">pip install urlgenie</div>
+    <div class="footer-links">
+      <a href="https://pypi.org/project/urlgenie/" target="_blank">PyPI</a> ·
+      <a href="https://github.com/bluestero/urlgenie" target="_blank">GitHub</a> ·
+      <a href="https://github.com/bluestero/urlgenie#-api" target="_blank">Full API</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+  function showPanel(id) { document.getElementById(id).scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  function fillExample(inputId, value) { document.getElementById(inputId).value = value; }
+</script>
+
+</body>
+</html>
