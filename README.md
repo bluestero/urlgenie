@@ -56,6 +56,30 @@ Everything returns `None` on invalid input rather than a magic string, so use
 df["clean"] = df["url"].apply(lambda u: generalize(u) or "Bad Url")
 ```
 
+For a one-off batch, `generalize_many` keeps every entry in place -- an invalid
+URL comes back as `None` rather than being silently dropped, so nothing shifts
+out of alignment with your input:
+
+```python
+from urlgenie import generalize_many
+
+for original, result in generalize_many("facebook.com,facebook/com,dummy.com,instagram.com/ahmed"):
+    print(f"{original:22} -> {result}")
+
+>> facebook.com           -> https://facebook.com
+>> facebook/com           -> None
+>> dummy.com              -> https://dummy.com
+>> instagram.com/ahmed    -> https://www.instagram.com/ahmed
+```
+
+For a one-off run where you only want the URLs that came out clean and do not
+need to know which input produced which, pass `drop_invalid=True`:
+
+```python
+generalize_many("facebook.com,facebook/com,dummy.com,instagram.com/ahmed", drop_invalid=True)
+>> [('facebook.com', 'https://facebook.com'), ('dummy.com', 'https://dummy.com'), ('instagram.com/ahmed', 'https://www.instagram.com/ahmed')]
+```
+
 ```python
 print(generalize("random.haz/somePath") or "Bad Url")
 >> Bad Url
@@ -90,7 +114,7 @@ print(validated.emails)
 | --- | --- |
 | `generalize(url, social=True, ...)` | Canonical URL, collapsing recognized social links to their profile |
 | `generalize_url(url, ...)` | Canonical URL only; `keep_path` / `keep_query` / `keep_fragment` / `keep_userinfo` / `force_https` / `lower` |
-| `generalize_many(urls, ...)` | Same for a delimited string or iterable; forwards every option |
+| `generalize_many(urls, drop_invalid=False, ...)` | Same for a delimited string or iterable; returns `[(original, result), ...]` in order, so an invalid entry is `None` in place rather than dropped. Pass `drop_invalid=True` to omit those pairs entirely when you only want the clean ones |
 | `generalize_social(url)` | Canonical social profile URL, or `None` |
 | `extract_social_handle(url)` | `SocialHandle(platform, handle, url, original_handle, rule)`, or `None` |
 | `detect_platform(url)` / `is_social_url(url)` | Platform lookup and membership test |
@@ -127,7 +151,7 @@ print(generalize("fb.com/@ahmedkhatib") or "Bad Url")
 | `generalize(url, get_handle=True)` | `extract_social_handle(url).handle` |
 | `generalize(url, get_domain=True)` | `parse_url(url).domain` |
 | `generalize(url, get_domain_with_tld=True)` | `parse_url(url).registrable_domain` |
-| `generalize(url, comma_separated=True)` | `generalize_many(url)` |
+| `generalize(url, comma_separated=True)` | `generalize_many(url)` -- note this returns `(original, result)` pairs, not a flat list |
 | `generalize(url, social_rectification=False)` | `generalize(url, social=False)` |
 | `generalize(url, keep_periods=False)` | always on for Facebook, which ignores periods |
 | `extract_from_text(text)` | `extract_contacts(text)` |

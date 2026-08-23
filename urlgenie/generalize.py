@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .social import extract_social_handle
 from .types import ParsedUrl
@@ -68,11 +68,24 @@ def generalize(url, *, social: bool = True, **kwargs) -> Optional[str]:
     return generalize_url(parsed, **kwargs)
 
 
-def generalize_many(urls, *, separator: str = ",", social: bool = True, **kwargs) -> List[str]:
+def generalize_many(
+    urls, *, separator: str = ",", social: bool = True, drop_invalid: bool = False, **kwargs
+) -> List[Tuple[str, Optional[str]]]:
     """Generalize a delimited string or an iterable of URLs.
 
-    Invalid entries are dropped. Every keyword argument is forwarded to
-    :func:`generalize`, so no flag can be silently lost here.
+    Returns one ``(original, generalized)`` pair per non-blank input, in the
+    same order given -- ``generalized`` is ``None`` for an invalid entry
+    rather than the row being dropped, so a bad URL never shifts every result
+    after it out of alignment with its input.
+
+    Set ``drop_invalid=True`` to omit invalid entries from the result instead
+    of keeping them as ``None`` -- useful for a one-off run where you only
+    want the URLs that came out clean and do not care which input produced
+    which output. The return shape does not change: you still get
+    ``(original, generalized)`` pairs, just fewer of them.
+
+    Every keyword argument is forwarded to :func:`generalize`, so no flag can
+    be silently lost here.
     """
     if isinstance(urls, str):
         urls = urls.split(separator)
@@ -81,7 +94,9 @@ def generalize_many(urls, *, separator: str = ",", social: bool = True, **kwargs
     for item in urls:
         if not isinstance(item, str) or not item.strip():
             continue
-        generalized = generalize(item.strip(), social=social, **kwargs)
-        if generalized is not None:
-            results.append(generalized)
+        original = item.strip()
+        generalized = generalize(original, social=social, **kwargs)
+        if drop_invalid and generalized is None:
+            continue
+        results.append((original, generalized))
     return results
