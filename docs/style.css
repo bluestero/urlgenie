@@ -11,12 +11,12 @@ body {
      small screens (floor: 900px) or over-stretching on ultrawide monitors
      (ceiling: 1600px) -- a flat 78vw would do both of those. */
   max-width: clamp(900px, 78vw, 1600px);
-  margin: 0 auto; padding: 32px 20px 80px;
+  margin: 0 auto; padding: 16px 20px 32px;
 }
 .topbar {
   display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 14px; padding-bottom: 16px;
-  border-bottom: 1px solid var(--border); margin-bottom: 20px;
+  flex-wrap: wrap; gap: 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
 }
 .topbar .brand { display: flex; align-items: center; gap: 12px; }
 .topbar .mascot { height: 12.5rem; width: auto; display: block; }
@@ -41,7 +41,7 @@ body {
 .runtime-note.failed .dot { background: var(--red); }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; }
 .tab {
   padding: 10px 18px; cursor: pointer; color: var(--muted);
   border-bottom: 2px solid transparent; font-size: 0.95rem; user-select: none;
@@ -52,7 +52,7 @@ body {
 .panel { display: none; }
 .panel.active { display: block; }
 
-.blurb { color: var(--muted); font-size: 0.9rem; margin: 0 0 20px; line-height: 1.5; }
+.blurb { color: var(--muted); font-size: 0.9rem; margin: 0 0 14px; line-height: 1.5; }
 .blurb code { background: var(--panel); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; }
 
 .section-header {
@@ -147,9 +147,9 @@ table.results td { padding: 8px 10px; border-bottom: 1px solid var(--border); fo
 /* ---- Validate tab ---- */
 .validate-row {
   background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-  padding: 14px 16px; margin-bottom: 14px;
+  padding: 10px 16px; margin-bottom: 10px;
 }
-.validate-row .row-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.validate-row .row-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
 .validate-row .row-title { font-weight: 600; font-size: 0.92rem; }
 .validate-row .row-desc { color: var(--muted); font-size: 0.8rem; }
 .validate-row .row-body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -161,14 +161,14 @@ table.results td { padding: 8px 10px; border-bottom: 1px solid var(--border); fo
 .field-inline input[type=checkbox] { accent-color: var(--accent); }
 
 footer {
-  margin-top: 60px; color: var(--muted); font-size: 0.85rem; text-align: center;
-  border-top: 1px solid var(--border); padding-top: 26px;
+  margin-top: 28px; color: var(--muted); font-size: 0.85rem; text-align: center;
+  border-top: 1px solid var(--border); padding-top: 14px;
 }
 footer a { color: var(--accent); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 .footer-links { font-size: 0.95rem; }
 .footer-links .footer-star { font-weight: 600; }
-.footer-credit { margin-top: 10px; font-size: 0.78rem; }
+.footer-credit { margin-top: 6px; font-size: 0.78rem; }
 .pip-line {
   display: inline-block; background: var(--panel); border: 1px solid var(--border);
   border-radius: 6px; padding: 4px 10px; font-family: monospace; font-size: 0.78rem; color: var(--text);
