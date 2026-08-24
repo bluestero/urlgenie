@@ -8,6 +8,8 @@ from urlgenie import (
     validate_email,
     validate_phone,
     validate_social,
+    validate_social_platform,
+    validate_social_profile,
     validate_url,
 )
 
@@ -104,6 +106,11 @@ def test_normalize_phone(phone, expected):
         "1111111111",
         #-Timestamps and ids that a loose pattern would otherwise accept-#
         "170123456789012",
+        #-Letters are not phone formatting; stripping them like punctuation
+        # let garbage text with embedded digits pass as a real number-#
+        "asdasd1312312321",
+        "call 415 555 2671",
+        "abc123def456",
     ],
 )
 def test_invalid_phones(phone):
@@ -114,3 +121,45 @@ def test_validate_social():
     assert validate_social("fb.com/@ahmed") is True
     assert validate_social("twitter.com/intent") is False
     assert validate_social("https://cnn.com") is False
+
+
+def test_validate_social_platform_vs_profile():
+    """profile.php belongs to Facebook but is not itself a profile URL --
+    the two functions must disagree on it, since that's the whole point."""
+    assert validate_social_platform("facebook.com/profile.php", "facebook") is True
+    assert validate_social_profile("facebook.com/profile.php", "facebook") is False
+
+    assert validate_social_platform("facebook.com/profile.php?id=123123123", "facebook") is True
+    assert validate_social_profile("facebook.com/profile.php?id=123123123", "facebook") is True
+
+
+def test_validate_social_platform_rejects_wrong_platform():
+    assert validate_social_platform("twitter.com/elonmusk", "facebook") is False
+    assert validate_social_profile("twitter.com/elonmusk", "facebook") is False
+
+
+def test_validate_social_accepts_platform_aliases():
+    assert validate_social_platform("fb.com/@ahmed", "fb") is True
+    assert validate_social_platform("fb.com/@ahmed", "facebook") is True
+    assert validate_social_platform("x.com/elonmusk", "x") is True
+    assert validate_social_platform("x.com/elonmusk", "twitter") is True
+
+
+def test_validate_social_reserved_word_is_platform_not_profile():
+    """A recognized-but-reserved path (e.g. intent, login) is a real URL on
+    that platform, just not a profile -- same distinction as profile.php."""
+    assert validate_social_platform("twitter.com/intent", "twitter") is True
+    assert validate_social_profile("twitter.com/intent", "twitter") is False
+
+
+@pytest.mark.parametrize("url", [None, "", "not a url at all", "cnn.com/x"])
+def test_validate_social_platform_handles_non_social_input(url):
+    assert validate_social_platform(url, "facebook") is False
+    assert validate_social_profile(url, "facebook") is False
+
+
+def test_validate_social_platform_unknown_platform_raises():
+    with pytest.raises(ValueError, match="Unknown platform"):
+        validate_social_platform("facebook.com/x", "isntagram")
+    with pytest.raises(ValueError, match="Unknown platform"):
+        validate_social_profile("facebook.com/x", "myspace")

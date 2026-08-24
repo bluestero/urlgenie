@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from typing import Iterable, Optional
 
-from .config import EMAIL_BAD_TLDS, EMAIL_PATTERN
-from .social import is_social_url
+from .config import EMAIL_BAD_TLDS, EMAIL_PATTERN, PLATFORM_BY_DOMAIN, PLATFORMS
+from .social import detect_platform, extract_social_handle, is_social_url
 from .types import ParsedUrl
 from .uri import parse_url
 
@@ -15,6 +15,8 @@ __all__ = [
     "validate_email",
     "validate_phone",
     "validate_social",
+    "validate_social_platform",
+    "validate_social_profile",
     "normalize_phone",
     "email_domain_matches",
 ]
@@ -28,6 +30,12 @@ _MIN_PHONE_DIGITS = 7
 _MAX_PHONE_DIGITS = 15
 
 _NON_DIGIT_RE = re.compile(r"\D")
+
+#-Digits plus the punctuation real phone numbers are formatted with. \D alone
+# strips letters too, which let "asdasd1312312321" normalize as a real number
+# just because it happened to contain 10 digits -- this rejects it outright
+# before any digit-counting logic runs.-#
+_PHONE_ALLOWED_CHARS_RE = re.compile(r"^[\d\s+().\-]+$")
 
 
 def validate_url(
@@ -117,7 +125,7 @@ def normalize_phone(phone) -> Optional[str]:
         return None
 
     phone = phone.strip()
-    if not phone:
+    if not phone or not _PHONE_ALLOWED_CHARS_RE.match(phone):
         return None
 
     international = phone.lstrip().startswith("+")
@@ -141,5 +149,46 @@ def validate_phone(phone) -> bool:
 
 
 def validate_social(url) -> bool:
-    """True if ``url`` is a recognized social profile."""
+    """True if ``url`` is a recognized social profile, on any platform."""
     return is_social_url(url)
+
+
+def _resolve_platform(platform: str) -> str:
+    """Resolve a platform name or alias (``"fb"``, ``"x"``) to its canonical name.
+
+    Raises ``ValueError`` if ``platform`` isn't one urlgenie recognizes. This is
+    a caller bug, not bad user input -- the URL being validated is untrusted,
+    but the platform name is a literal the caller wrote themselves, so a typo
+    should fail immediately rather than silently validating against nothing.
+    """
+    entry = PLATFORM_BY_DOMAIN.get(platform.lower()) if isinstance(platform, str) else None
+    if entry is None:
+        valid = sorted({p.name for p in PLATFORMS})
+        raise ValueError(f"Unknown platform {platform!r}; expected one of {valid} (or an alias like 'fb', 'x')")
+    return entry.name
+
+
+def validate_social_platform(url, platform: str) -> bool:
+    """True if ``url``'s domain belongs to ``platform``.
+
+    This does not check whether the path resolves to an actual profile --
+    ``facebook.com/profile.php`` belongs to Facebook but is not itself a
+    profile URL. See :func:`validate_social_profile` for that check.
+
+        validate_social_platform("facebook.com/profile.php", "facebook")  # True
+        validate_social_platform("twitter.com/elonmusk", "facebook")      # False
+    """
+    canonical = _resolve_platform(platform)
+    detected = detect_platform(url)
+    return detected is not None and detected.name == canonical
+
+
+def validate_social_profile(url, platform: str) -> bool:
+    """True if ``url`` resolves to an actual profile/handle on ``platform``.
+
+        validate_social_profile("facebook.com/profile.php", "facebook")             # False -- reserved, no id
+        validate_social_profile("facebook.com/profile.php?id=123123123", "facebook") # True
+    """
+    canonical = _resolve_platform(platform)
+    handle = extract_social_handle(url)
+    return handle is not None and handle.platform == canonical

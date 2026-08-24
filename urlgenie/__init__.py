@@ -25,10 +25,12 @@ from .validate import (
     validate_email,
     validate_phone,
     validate_social,
+    validate_social_platform,
+    validate_social_profile,
     validate_url,
 )
 
-__version__ = "2.0.2"
+__version__ = "2.0.4"
 
 __all__ = [
     "ExtractResult",
@@ -54,5 +56,7 @@ __all__ = [
     "validate_email",
     "validate_phone",
     "validate_social",
+    "validate_social_platform",
+    "validate_social_profile",
     "validate_url",
 ]

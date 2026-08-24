@@ -85,6 +85,29 @@ print(generalize("random.haz/somePath") or "Bad Url")
 >> Bad Url
 ```
 
+### Validating a social URL against an expected platform
+
+A form field asking for a Facebook profile has to check two different things:
+is this a Facebook URL at all, and does it actually point at a profile?
+
+```python
+from urlgenie import validate_social_platform, validate_social_profile
+
+url = "facebook.com/profile.php"
+
+print(validate_social_platform(url, "facebook"))
+>> True
+
+print(validate_social_profile(url, "facebook"))
+>> False
+
+print(validate_social_profile("facebook.com/profile.php?id=123123123", "facebook"))
+>> True
+```
+
+`profile.php` alone belongs to Facebook but isn't a profile -- it's a reserved
+path with no id. Adding `?id=...` is what makes it one.
+
 ### Extracting contacts from a page
 
 ```python
@@ -122,7 +145,9 @@ print(validated.emails)
 | `validate_url(url)` | Syntactic validity, public-suffix check, scheme allowlist |
 | `validate_email(email, url=None)` | Syntax, RFC 5321 length limits, optional site-domain match |
 | `validate_phone(phone)` / `normalize_phone(phone)` | Pragmatic digit-count validation |
-| `validate_social(url)` | Whether a URL is a recognized profile |
+| `validate_social(url)` | Whether a URL is a recognized profile, on any platform |
+| `validate_social_platform(url, platform)` | Whether a URL's domain belongs to `platform` (e.g. `"facebook"`), regardless of whether the path resolves to a profile |
+| `validate_social_profile(url, platform)` | Whether a URL resolves to an actual profile/handle on `platform`. `facebook.com/profile.php` passes the platform check but not this one |
 | `extract_contacts(text, include=, exclude=)` | Emails, phones and socials from free text |
 | `validate_contacts(result, url=None)` | Filter an `ExtractResult`; scope emails to a site |
 

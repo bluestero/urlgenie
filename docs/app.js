@@ -53,6 +53,12 @@ def _bridge_validate_phone(phone):
 
 def _bridge_validate_social(url):
     return json.dumps({"valid": urlgenie.validate_social(url)})
+
+def _bridge_validate_social_platform(url, platform):
+    return json.dumps({"valid": urlgenie.validate_social_platform(url, platform)})
+
+def _bridge_validate_social_profile(url, platform):
+    return json.dumps({"valid": urlgenie.validate_social_profile(url, platform)})
 `;
 
 let bridge = {};
@@ -89,6 +95,8 @@ async function initPyodide() {
       validateEmail: pyodide.globals.get("_bridge_validate_email"),
       validatePhone: pyodide.globals.get("_bridge_validate_phone"),
       validateSocial: pyodide.globals.get("_bridge_validate_social"),
+      validateSocialPlatform: pyodide.globals.get("_bridge_validate_social_platform"),
+      validateSocialProfile: pyodide.globals.get("_bridge_validate_social_profile"),
     };
 
     const version = pyodide.runPython("import urlgenie; urlgenie.__version__");
@@ -190,12 +198,12 @@ function fillExample(inputId) {
 
 /* ---------------- Validate tab ---------------- */
 
-function showValidateResult(resultId, valid, extraText) {
+function showValidateResult(resultId, valid, extraText, label) {
   const el = document.getElementById(resultId);
   el.innerHTML = "";
   const badge = document.createElement("span");
   badge.className = valid ? "badge-valid" : "badge-invalid";
-  badge.textContent = valid ? "✓ Valid" : "✗ Invalid";
+  badge.textContent = (label ? `${label}: ` : "") + (valid ? "✓ Valid" : "✗ Invalid");
   el.appendChild(badge);
   if (extraText) {
     const note = document.createElement("span");
@@ -206,36 +214,86 @@ function showValidateResult(resultId, valid, extraText) {
   }
 }
 
+function showValidateError(resultId, err) {
+  console.error(err);
+  const el = document.getElementById(resultId);
+  el.innerHTML = "";
+  const badge = document.createElement("span");
+  badge.className = "badge-invalid";
+  badge.textContent = "⚠ Error — see console";
+  el.appendChild(badge);
+}
+
 function initValidateTab() {
   document.getElementById("val-url-btn").addEventListener("click", () => {
-    const url = document.getElementById("val-url-input").value.trim();
-    const requireSuffix = document.getElementById("val-url-require-suffix").checked;
-    const raw = bridge.validateUrl.callKwargs(url, { require_suffix: requireSuffix });
-    const data = JSON.parse(raw);
-    showValidateResult("val-url-result", data.valid);
+    try {
+      const url = document.getElementById("val-url-input").value.trim();
+      const requireSuffix = document.getElementById("val-url-require-suffix").checked;
+      const raw = bridge.validateUrl.callKwargs(url, { require_suffix: requireSuffix });
+      const data = JSON.parse(raw);
+      showValidateResult("val-url-result", data.valid);
+    } catch (err) {
+      showValidateError("val-url-result", err);
+    }
   });
 
   document.getElementById("val-email-btn").addEventListener("click", () => {
-    const email = document.getElementById("val-email-input").value.trim();
-    const useDomain = document.getElementById("val-email-domain-check").checked;
-    const domainUrl = useDomain ? document.getElementById("val-email-domain-input").value.trim() : "";
-    const raw = bridge.validateEmail.callKwargs(email, { url_filter: domainUrl });
-    const data = JSON.parse(raw);
-    showValidateResult("val-email-result", data.valid);
+    try {
+      const email = document.getElementById("val-email-input").value.trim();
+      const useDomain = document.getElementById("val-email-domain-check").checked;
+      const domainUrl = useDomain ? document.getElementById("val-email-domain-input").value.trim() : "";
+      const raw = bridge.validateEmail.callKwargs(email, { url_filter: domainUrl });
+      const data = JSON.parse(raw);
+      showValidateResult("val-email-result", data.valid);
+    } catch (err) {
+      showValidateError("val-email-result", err);
+    }
   });
 
   document.getElementById("val-phone-btn").addEventListener("click", () => {
-    const phone = document.getElementById("val-phone-input").value.trim();
-    const raw = bridge.validatePhone.callKwargs(phone, {});
-    const data = JSON.parse(raw);
-    showValidateResult("val-phone-result", data.valid, data.valid ? `normalized: ${data.normalized}` : null);
+    try {
+      const phone = document.getElementById("val-phone-input").value.trim();
+      const raw = bridge.validatePhone.callKwargs(phone, {});
+      const data = JSON.parse(raw);
+      showValidateResult("val-phone-result", data.valid);
+      document.getElementById("val-phone-normalized").value = data.valid ? data.normalized : "";
+    } catch (err) {
+      showValidateError("val-phone-result", err);
+      document.getElementById("val-phone-normalized").value = "";
+    }
   });
 
   document.getElementById("val-social-btn").addEventListener("click", () => {
-    const url = document.getElementById("val-social-input").value.trim();
-    const raw = bridge.validateSocial.callKwargs(url, {});
-    const data = JSON.parse(raw);
-    showValidateResult("val-social-result", data.valid);
+    try {
+      const url = document.getElementById("val-social-input").value.trim();
+      const raw = bridge.validateSocial.callKwargs(url, {});
+      const data = JSON.parse(raw);
+      showValidateResult("val-social-result", data.valid);
+    } catch (err) {
+      showValidateError("val-social-result", err);
+    }
+  });
+
+  document.getElementById("val-platform-btn").addEventListener("click", () => {
+    try {
+      const url = document.getElementById("val-platform-input").value.trim();
+      const platform = document.getElementById("val-platform-select").value;
+      const raw = bridge.validateSocialPlatform.callKwargs(url, { platform });
+      showValidateResult("val-platform-result", JSON.parse(raw).valid);
+    } catch (err) {
+      showValidateError("val-platform-result", err);
+    }
+  });
+
+  document.getElementById("val-profile-btn").addEventListener("click", () => {
+    try {
+      const url = document.getElementById("val-profile-input").value.trim();
+      const platform = document.getElementById("val-profile-select").value;
+      const raw = bridge.validateSocialProfile.callKwargs(url, { platform });
+      showValidateResult("val-profile-result", JSON.parse(raw).valid);
+    } catch (err) {
+      showValidateError("val-profile-result", err);
+    }
   });
 }
 
