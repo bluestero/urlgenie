@@ -31,7 +31,7 @@
 
 <!-- ================= PANEL 0: validators ================= -->
 <div class="panel active" id="panel-validate">
-  <p class="blurb">Four independent checks — <code>validate_url</code>, <code>validate_email</code>, <code>validate_phone</code>, <code>validate_social</code> — each returns a plain true/false.</p>
+  <p class="blurb">Independent checks, each returning a plain true/false — <code>validate_url</code>, <code>validate_email</code>, <code>validate_phone</code>, <code>validate_social</code>, and <code>validate_social_platform</code> / <code>validate_social_profile</code> for a specific platform.</p>
 
   <div class="validate-row">
     <div class="row-head">
@@ -40,7 +40,9 @@
     </div>
     <div class="row-body">
       <input type="text" id="val-url-input" value="https://example.photography/portfolio">
-      <label class="field-inline"><input type="checkbox" id="val-url-require-suffix" checked> require real TLD</label>
+      <div class="row-extras">
+        <label class="field-inline"><input type="checkbox" id="val-url-require-suffix" checked> require real TLD</label>
+      </div>
       <button class="run" id="val-url-btn" disabled>Check</button>
       <span class="row-result" id="val-url-result"></span>
     </div>
@@ -53,8 +55,10 @@
     </div>
     <div class="row-body">
       <input type="text" id="val-email-input" value="sample@image.png">
-      <label class="field-inline"><input type="checkbox" id="val-email-domain-check"> must match domain</label>
-      <input type="text" id="val-email-domain-input" class="narrow" placeholder="https://www.example.com">
+      <div class="row-extras">
+        <label class="field-inline"><input type="checkbox" id="val-email-domain-check"> match domain</label>
+        <input type="text" id="val-email-domain-input" class="narrow" placeholder="https://www.example.com">
+      </div>
       <button class="run" id="val-email-btn" disabled>Check</button>
       <span class="row-result" id="val-email-result"></span>
     </div>
@@ -67,6 +71,9 @@
     </div>
     <div class="row-body">
       <input type="text" id="val-phone-input" value="+1 (415) 555-2671">
+      <div class="row-extras">
+        <input type="text" id="val-phone-normalized" class="narrow" readonly placeholder="normalized">
+      </div>
       <button class="run" id="val-phone-btn" disabled>Check</button>
       <span class="row-result" id="val-phone-result"></span>
     </div>
@@ -79,8 +86,51 @@
     </div>
     <div class="row-body">
       <input type="text" id="val-social-input" value="twitter.com/intent">
+      <div class="row-extras"></div>
       <button class="run" id="val-social-btn" disabled>Check</button>
       <span class="row-result" id="val-social-result"></span>
+    </div>
+  </div>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">Social platform</span>
+      <span class="row-desc"><code>validate_social_platform(url, platform)</code> — is this a URL on that platform at all?</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-platform-input" value="facebook.com/profile.php">
+      <div class="row-extras">
+        <select id="val-platform-select">
+          <option value="facebook" selected>Facebook</option>
+          <option value="twitter">Twitter / X</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+        </select>
+      </div>
+      <button class="run" id="val-platform-btn" disabled>Check</button>
+      <span class="row-result" id="val-platform-result"></span>
+    </div>
+  </div>
+
+  <div class="validate-row">
+    <div class="row-head">
+      <span class="row-title">Social profile</span>
+      <span class="row-desc"><code>validate_social_profile(url, platform)</code> — does it resolve to an actual profile there? Same input as above shows the split: recognized as Facebook, but not a profile.</span>
+    </div>
+    <div class="row-body">
+      <input type="text" id="val-profile-input" value="facebook.com/profile.php">
+      <div class="row-extras">
+        <select id="val-profile-select">
+          <option value="facebook" selected>Facebook</option>
+          <option value="twitter">Twitter / X</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+        </select>
+      </div>
+      <button class="run" id="val-profile-btn" disabled>Check</button>
+      <span class="row-result" id="val-profile-result"></span>
     </div>
   </div>
 </div>

@@ -68,13 +68,54 @@ textarea, input[type=text] {
 }
 textarea:focus, input[type=text]:focus { outline: 1px solid var(--accent); }
 
+select {
+  /* Padding alone can't move a browser's native dropdown arrow -- Chromium
+     reserves it in a fixed strip near the border regardless of padding, so
+     extra padding-right just adds space between the text and the arrow, not
+     between the arrow and the edge. appearance: none removes the native
+     arrow entirely and this draws a replacement with an explicit position. */
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-color: var(--panel);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a9b3c0' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 10px 30px 10px 10px;
+  font-family: inherit; font-size: 0.9rem; cursor: pointer;
+}
+select:focus { outline: 1px solid var(--accent); }
+
+input[readonly] { color: var(--muted); cursor: default; }
+
 .options { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
 .toggle {
   display: flex; align-items: center; gap: 8px; position: relative;
   background: var(--panel); border: 1px solid var(--border);
   border-radius: 8px; padding: 8px 12px; cursor: pointer;
 }
-.toggle input[type=checkbox] { accent-color: var(--accent); }
+/* Every checkbox on the page renders as a sliding switch instead of a native
+   box -- styled on the checkbox itself (appearance: none), so no HTML needs
+   to change anywhere this is used. */
+input[type=checkbox] {
+  appearance: none; -webkit-appearance: none;
+  /* appearance: none removes the native checkbox rendering but not its
+     default UA-stylesheet margin (Firefox in particular applies an uneven
+     one) -- flexbox centers the margin box, so a leftover asymmetric margin
+     makes the checkbox look off-center even though its box is centered. */
+  margin: 0; vertical-align: middle;
+  width: 34px; height: 19px; flex-shrink: 0;
+  background: var(--border); border-radius: 999px;
+  position: relative; cursor: pointer; outline: none;
+  transition: background 0.15s;
+}
+input[type=checkbox]::before {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--text); transition: left 0.15s, background 0.15s;
+}
+input[type=checkbox]:checked { background: var(--accent); }
+input[type=checkbox]:checked::before { left: 17px; background: #04101f; }
+input[type=checkbox]:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 .toggle .label-text { font-size: 0.85rem; }
 .toggle .desc {
   display: none; position: absolute; top: 100%; left: 0; background: #010409; border: 1px solid var(--border);
@@ -87,7 +128,7 @@ details.advanced { margin: 4px 0 16px; }
 details.advanced summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 4px 0; }
 
 button.run, button.export-btn {
-  background: var(--accent); color: #04101f; border: none; font-weight: 600;
+  background: var(--accent); color: #04101f; border: 1px solid transparent; font-weight: 600;
   padding: 10px 22px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
 }
 button.run:hover, button.export-btn:hover { filter: brightness(1.1); }
@@ -152,13 +193,18 @@ table.results td { padding: 8px 10px; border-bottom: 1px solid var(--border); fo
 .validate-row .row-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
 .validate-row .row-title { font-weight: 600; font-size: 0.92rem; }
 .validate-row .row-desc { color: var(--muted); font-size: 0.8rem; }
-.validate-row .row-body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.validate-row input[type=text] { flex: 1 1 220px; }
-.validate-row input[type=text].narrow { flex: 0 1 200px; }
-.validate-row .row-result { min-width: 90px; }
 
-.field-inline { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
-.field-inline input[type=checkbox] { accent-color: var(--accent); }
+/* Table-like row: text field fills whatever space is left; the extras zone,
+   Check button and result badge are fixed width and reserved on every row
+   (even empty), so all Check buttons land at the same x position regardless
+   of which row has a checkbox, a dropdown, or nothing at all. */
+.validate-row .row-body { display: flex; align-items: center; gap: 10px; }
+.validate-row .row-body input[type=text] { flex: 1 1 auto; min-width: 100px; }
+.row-extras { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.validate-row input[type=text].narrow { flex: 0 1 160px; min-width: 0; }
+.validate-row .row-result { flex: 0 0 120px; display: flex; align-items: center; }
+
+.field-inline { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
 
 footer {
   margin-top: 28px; color: var(--muted); font-size: 0.85rem; text-align: center;
