@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guided tour — URL Genie</title>
+<link rel="icon" href="../assets/mascot.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function(){try{var t=localStorage.getItem('urlgenie_theme');if(!t){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';localStorage.setItem('urlgenie_theme',t);}document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
+</script>
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="bar">
+    <div class="barin">
+      <div class="brand">
+        <a href="../" aria-label="URL Genie home"><img src="../assets/mascot.png" alt="URL Genie" width="84" height="84"></a>
+        <div class="brandtext">
+          <div class="titlerow">
+            <span class="name">URL Genie</span>
+            <span class="tagpill">GUIDED TOUR</span>
+          </div>
+          <p>URL generalization, contact extraction and validation.</p>
+        </div>
+      </div>
+      <div class="barright">
+        <span class="counter" id="counter">1 / 10</span>
+        <a class="btn home" href="../">← Home</a>
+        <button class="moon plain" id="theme" title="Switch theme" aria-label="Switch theme"><span><span></span></span></button>
+        <a class="btn skip" href="../playground/" id="skip">Skip →</a>
+      </div>
+    </div>
+    <div class="rail" id="rail"></div>
+  </header>
+
+  <div class="boot" id="boot">
+    <div>
+      <span class="spinner"></span>
+      <span id="bootText">Starting the real Python package in your browser</span>
+    </div>
+  </div>
+
+  <main class="stage"><div class="step" id="step"></div></main>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
