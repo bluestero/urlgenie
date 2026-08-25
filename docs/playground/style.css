@@ -1,17 +1,16 @@
 /* Playground layout */
 
-.wrap{max-width:1080px;margin:0 auto;padding:0 var(--pad) 64px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--pad) 64px}
 
 .head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:28px 0 22px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:14px}
-.brand img{object-fit:contain;width:112px;height:112px}
+.brand img{object-fit:contain;width:150px;height:150px}
 .brandtext{display:flex;flex-direction:column;gap:5px}
 .titlerow{display:flex;align-items:baseline;gap:9px}
 .name{font:600 22px/1.1 var(--sans);letter-spacing:-.02em}
 .tagpill{font:500 11px/1 var(--mono);color:var(--acc);border:1px solid var(--acc);border-radius:5px;padding:4px 7px}
-.brandtext p{margin:0;font:14px/1.5 var(--sans);color:var(--fg3);max-width:56ch}
+.brandtext p{margin:0;font:14px/1.5 var(--sans);color:var(--fg3);max-width:64ch}
 
-.brandtext .for{font:13px/1.55 var(--sans);color:var(--fg4);max-width:62ch;text-wrap:pretty}
 .home{font:500 12px/1 var(--sans);color:var(--fg2);border:1px solid var(--line);border-radius:7px;padding:9px 12px;white-space:nowrap}
 .home:hover{border-color:var(--acc);color:var(--acc)}
 
@@ -107,5 +106,5 @@ textarea{width:100%;font:13px/1.7 var(--mono);padding:12px 13px;resize:vertical}
   .side .group{flex-direction:row;gap:6px}
   .side .grouplabel{display:none}
   .side button{white-space:nowrap;border-radius:8px;border-left-width:2px}
-  .brand img{width:84px;height:84px}
+  .brand img{width:100px;height:100px}
 }
