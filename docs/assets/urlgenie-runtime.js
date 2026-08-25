@@ -20,11 +20,18 @@ def __api(name, payload):
     elif name == "many":
         pairs = ug.generalize_many([l for l in a["v"].replace(",", "\\n").split("\\n") if l.strip()])
         groups = {}
+        invalid = []
         for original, generalized in pairs:
-            groups.setdefault(generalized, []).append(original)
-        out = {"total": len(pairs), "groups": [
-            {"canon": k, "inputs": v, "count": len(v), "ok": k is not None} for k, v in groups.items()
-        ]}
+            # None keys would otherwise all collapse into one dict bucket,
+            # showing unrelated invalid rows as if they were duplicates of
+            # each other. Each invalid input gets its own group of one.
+            if generalized is None:
+                invalid.append(original)
+            else:
+                groups.setdefault(generalized, []).append(original)
+        out_groups = [{"canon": k, "inputs": v, "count": len(v), "ok": True} for k, v in groups.items()]
+        out_groups += [{"canon": None, "inputs": [o], "count": 1, "ok": False} for o in invalid]
+        out = {"total": len(pairs), "groups": out_groups}
     elif name == "extract":
         r = ug.extract_contacts(a["v"])
         out = {"emails": sorted(r.emails), "phones": sorted(r.phones), "facebook": sorted(r.facebook),
