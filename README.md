@@ -14,6 +14,8 @@ Version 2 is a rewrite with an RFC 3986 compliant core and small, explicit funct
 in place of one `generalize()` carrying a dozen flags. See
 [Migrating from 1.x](#-migrating-from-1x) if you are upgrading.
 
+Try it live in the browser: [urlgenie](https://bluestero.github.io/urlgenie/) -- no install needed.
+
 ## ✨ Features
 - RFC 3986 compliant parsing, normalization and validation.
 - Social profile recognition for Facebook, LinkedIn, Twitter/X, Instagram and YouTube.
