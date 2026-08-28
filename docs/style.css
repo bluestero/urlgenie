@@ -35,15 +35,13 @@
   max-width:52ch;font:13.5px/1.65 var(--sans);color:var(--fg4);text-wrap:pretty;
 }
 .for span{
-  display:block;margin-bottom:6px;font:600 18px/1.4 var(--mono);letter-spacing:.12em;color:var(--acc);
+  display:block;margin-bottom:6px;font:700 20px/1.4 var(--mono);letter-spacing:.08em;color:var(--acc);
 }
 
-.links{display:flex;gap:16px;margin:52px 0 0;flex-wrap:wrap;justify-content:flex-start;padding-left:490px;font:13px/1 var(--sans)}
-.links a{color:var(--fg4)}
-.links a:hover{color:var(--acc)}
+.landing .foot{margin:22px 0 0;padding-left:490px}
 
 @media (max-width:760px){
-  .links{padding-left:0}
+  .landing .foot{padding-left:0}
   .hero{flex-direction:column;gap:20px;text-align:left;align-items:flex-start}
   .hero > img{width:289px;height:289px}
   .landing{justify-content:flex-start;padding-top:72px}

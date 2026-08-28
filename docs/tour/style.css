@@ -33,11 +33,11 @@
 .step.alt{animation-name:riseB}
 
 .copy{display:flex;flex-direction:column;gap:11px}
-.copy .kick{font:600 11px/1 var(--mono);letter-spacing:.12em;color:var(--acc)}
+.copy .kick{font:700 14px/1.2 var(--mono);letter-spacing:.10em;color:var(--acc)}
 .copy h1{margin:0;font:600 var(--h1)/1.15 var(--sans);letter-spacing:-.025em;text-wrap:balance}
 .copy .body{font:16px/1.65 var(--sans);color:var(--fg2);max-width:68ch;text-wrap:pretty}
 .copy .when{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;max-width:68ch}
-.copy .when .lab{font:600 11px/1.5 var(--mono);letter-spacing:.10em;color:var(--acc);white-space:nowrap}
+.copy .when .lab{font:700 13px/1.5 var(--mono);letter-spacing:.08em;color:var(--acc);white-space:nowrap}
 .copy .when .txt{font:14px/1.6 var(--sans);color:var(--fg3);text-wrap:pretty}
 .copy .aside{background:var(--panel2);border:1px solid var(--line2);border-left:2px solid var(--acc);border-radius:0 10px 10px 0;padding:12px 14px;max-width:68ch;font:14px/1.6 var(--sans);color:var(--fg3);text-wrap:pretty}
 
@@ -93,5 +93,7 @@ textarea{width:100%;font:13px/1.7 var(--mono);padding:12px 13px;resize:vertical}
 .nav .next:hover{background:transparent;color:var(--acc)}
 .nav .next.locked{background:var(--line);border-color:var(--line);color:var(--fg4);cursor:default}
 .nav .next.locked:hover{background:var(--line);color:var(--fg4)}
+
+.page > .foot{max-width:820px;width:100%;margin-left:auto;margin-right:auto;padding-left:var(--pad);padding-right:var(--pad);padding-bottom:28px}
 
 @media (max-width:640px){ .brand img{width:80px;height:80px} }
