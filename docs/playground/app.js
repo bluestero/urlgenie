@@ -6,9 +6,9 @@ const SRC = 'https://github.com/bluestero/urlgenie/blob/main/urlgenie/';
 const DEFS = {
   url: {
     name: 'Is this a real URL?', sig: 'validate_url(url)', doc: SRC + 'validate.py',
-    desc: 'Parses the string, then checks the ending against the public suffix list. Note the flag is narrow: a made-up TLD is rejected by the parser itself, so require_suffix only ever changes the answer for bare IP addresses.',
+    desc: 'Parses the string, then checks the ending against the public suffix list — a made-up TLD like acme.zzz fails at the parser stage, before validation even runs.',
     when: 'a scraped column is half junk and every request you spend on a fake domain is a request wasted',
-    ph: 'https://example.com/page', toggle: 'require real TLD', toggleDefault: true,
+    ph: 'https://example.com/page',
     val: 'https://example.photography/portfolio',
     chips: ['https://example.photography/portfolio', 'https://acme.zzz', 'http://192.168.1.10/admin', 'definitely not a url']
   },
@@ -53,7 +53,16 @@ const DEFS = {
     desc: 'RFC 3986 normalization — scheme and host case, percent-encoding, dot segments, default ports — then query, fragment and trailing slash are dropped. Recognised social links collapse further, to the canonical profile URL.',
     when: 'the same page arrives spelled four ways and you need one key to store it under',
     ph: 'http://WWW.Example.com/Blog/?utm_source=x', val: 'http://WWW.Example.com/Blog/?utm_source=x',
-    chips: ['http://WWW.Example.com/Blog/?utm_source=x', 'fb.com/@ahmedkhatib', 'example.com/blog/']
+    chips: ['http://WWW.Example.com/Blog/?utm_source=x', 'fb.com/@ahmedkhatib', 'example.com/blog/'],
+    flags: [
+      { key: 'keep_query', label: 'keep query', def: false },
+      { key: 'keep_fragment', label: 'keep fragment', def: false },
+      { key: 'force_https', label: 'force https', def: true },
+      { key: 'lower', label: 'lowercase', def: false },
+      { key: 'social', label: 'social', def: true, adv: true },
+      { key: 'keep_path', label: 'keep path', def: true, adv: true },
+      { key: 'keep_userinfo', label: 'keep userinfo', def: false, adv: true }
+    ]
   },
   many: {
     bulk: true, name: 'Generalize many', sig: 'generalize_many(urls)', doc: SRC + 'generalize.py',
@@ -85,12 +94,16 @@ const NAV = [
 
 const S = {
   rt: null, fn: 'url', platforms: ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube'],
-  vals: {}, extras: {}, toggles: {}, sels: {}, results: {}, bulk: {}, bulkOut: {}, menu: false
+  vals: {}, extras: {}, toggles: {}, sels: {}, results: {}, bulk: {}, bulkOut: {}, menu: false,
+  flags: {}, advOpen: {}
 };
 Object.keys(DEFS).forEach(k => {
   const d = DEFS[k];
   if (d.bulk) S.bulk[k] = '';
-  else { S.vals[k] = d.val || ''; S.toggles[k] = !!d.toggleDefault; if (d.extra) S.extras[k] = d.extra; if (d.select) S.sels[k] = 'facebook'; }
+  else {
+    S.vals[k] = d.val || ''; S.toggles[k] = !!d.toggleDefault; if (d.extra) S.extras[k] = d.extra; if (d.select) S.sels[k] = 'facebook';
+    if (d.flags) { S.flags[k] = {}; d.flags.forEach(f => { S.flags[k][f.key] = f.def; }); }
+  }
 });
 try {
   const saved = localStorage.getItem('urlgenie_fn');
@@ -195,7 +208,12 @@ function cardHead(d) {
   const cp = el('button', 'ghost', 'copy call');
   cp.addEventListener('click', () => {
     const arg = d.bulk ? 'text' : '"' + (S.vals[S.fn] || '') + '"';
-    copy('urlgenie.' + d.sig.replace(/\(.*/, '') + '(' + arg + ')');
+    let kwargs = '';
+    if (d.flags) {
+      const changed = d.flags.filter(f => S.flags[S.fn][f.key] !== f.def);
+      kwargs = changed.map(f => ', ' + f.key + '=' + (S.flags[S.fn][f.key] ? 'True' : 'False')).join('');
+    }
+    copy('urlgenie.' + d.sig.replace(/\(.*/, '') + '(' + arg + kwargs + ')');
     flash(cp, 'copied');
   });
   const src = el('a', 'ghost btn', 'source ↗');
@@ -204,6 +222,37 @@ function cardHead(d) {
 
   head.appendChild(left); head.appendChild(tools);
   return head;
+}
+
+function flagSwitch(fn, f) {
+  const sw = el('button', 'sw plain');
+  sw.setAttribute('role', 'switch');
+  sw.setAttribute('aria-checked', String(!!S.flags[fn][f.key]));
+  const track = el('span', 'track'); track.appendChild(el('span', 'knob'));
+  sw.appendChild(track);
+  sw.appendChild(el('span', 'label', f.label));
+  sw.addEventListener('click', () => { S.flags[fn][f.key] = !S.flags[fn][f.key]; renderPane(); });
+  return sw;
+}
+
+function flagsRow(d) {
+  const fn = S.fn;
+  const wrap = el('div', 'flags');
+  const basic = el('div', 'flagrow');
+  d.flags.filter(f => !f.adv).forEach(f => basic.appendChild(flagSwitch(fn, f)));
+  const adv = d.flags.filter(f => f.adv);
+  if (adv.length) {
+    const toggle = el('button', 'ghost advtoggle', S.advOpen[fn] ? 'hide advanced' : 'show advanced');
+    toggle.addEventListener('click', () => { S.advOpen[fn] = !S.advOpen[fn]; renderPane(); });
+    basic.appendChild(toggle);
+  }
+  wrap.appendChild(basic);
+  if (adv.length && S.advOpen[fn]) {
+    const advRow = el('div', 'flagrow adv');
+    adv.forEach(f => advRow.appendChild(flagSwitch(fn, f)));
+    wrap.appendChild(advRow);
+  }
+  return wrap;
 }
 
 function singleCard(d) {
@@ -264,6 +313,8 @@ function singleCard(d) {
   go.addEventListener('click', run);
   row.appendChild(go);
   card.appendChild(row);
+
+  if (d.flags) card.appendChild(flagsRow(d));
 
   const tryRow = el('div', 'try');
   tryRow.appendChild(el('span', null, 'TRY'));
@@ -373,11 +424,10 @@ function run() {
     } else {
       const v = S.vals[fn] || '';
       let r;
-      if (fn === 'url') r = S.rt.call('url', { v, suffix: !!S.toggles.url });
-      else if (fn === 'email') r = S.rt.call('email', { v, site: S.toggles.email ? (S.extras.email || '') : '' });
+      if (fn === 'email') r = S.rt.call('email', { v, site: S.toggles.email ? (S.extras.email || '') : '' });
       else if (fn === 'splat') r = S.rt.call('platform', { v, p: S.sels.splat });
       else if (fn === 'sprof') r = S.rt.call('profile', { v, p: S.sels.sprof });
-      else if (fn === 'gen') r = S.rt.call('generalize', { v });
+      else if (fn === 'gen') r = S.rt.call('generalize', { v, flags: S.flags.gen });
       else r = S.rt.call(fn, { v });
       S.results[fn] = r;
     }

@@ -72,6 +72,11 @@ textarea{width:100%;font:13px/1.7 var(--mono);padding:12px 13px;resize:vertical}
 .menu button:hover{background:var(--accsoft);color:var(--acc)}
 .menu button[aria-current="true"]{background:var(--accsoft);color:var(--acc)}
 
+.flags{display:flex;flex-direction:column;gap:8px}
+.flagrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.flagrow.adv{padding-top:2px;border-top:1px dashed var(--line2)}
+.advtoggle{margin-left:auto}
+
 .try{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .try > span{font:600 10px/1.4 var(--mono);letter-spacing:.10em;color:var(--fg4)}
 
@@ -92,13 +97,6 @@ textarea{width:100%;font:13px/1.7 var(--mono);padding:12px 13px;resize:vertical}
 .softbtn{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 14px;color:var(--fg3);font:12px/1 var(--mono);cursor:pointer}
 .softbtn:hover{border-color:var(--acc);color:var(--acc)}
 .spacer{flex:1}
-
-.foot{display:flex;align-items:center;justify-content:space-between;gap:18px;border-top:1px solid var(--line2);margin-top:34px;padding-top:18px;flex-wrap:wrap}
-.foot .links{display:flex;align-items:center;gap:14px;font:13px/1 var(--sans);color:var(--fg4);flex-wrap:wrap}
-.foot .links a{color:var(--fg4)}
-.foot .links a:hover{color:var(--acc)}
-.replay{font:500 13px/1 var(--sans);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
-.replay:hover{border-color:var(--acc);color:var(--acc)}
 
 @media (max-width:860px){
   .shell{grid-template-columns:1fr;gap:16px}

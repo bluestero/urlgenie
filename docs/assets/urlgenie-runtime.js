@@ -10,13 +10,23 @@ from urlgenie.social import extract_social_handle
 
 def __api(name, payload):
     a = json.loads(payload)
-    if name == "url":       out = explain.explain_url(a["v"], require_suffix=a.get("suffix", True)).as_dict()
+    if name == "url":       out = explain.explain_url(a["v"]).as_dict()
     elif name == "email":   out = explain.explain_email(a["v"], url=a.get("site") or None).as_dict()
     elif name == "phone":   out = explain.explain_phone(a["v"]).as_dict()
     elif name == "social":  out = explain.explain_social(a["v"]).as_dict()
     elif name == "platform":out = explain.explain_social_platform(a["v"], a["p"]).as_dict()
     elif name == "profile": out = explain.explain_social_profile(a["v"], a["p"]).as_dict()
-    elif name == "generalize": out = explain.explain_generalize(a["v"]).as_dict()
+    elif name == "generalize":
+        flags = a.get("flags") or {}
+        result = ug.generalize(a["v"], **flags)
+        if result is None:
+            out = {"ok": False, "message": explain.MESSAGES["generalize.invalid"], "detail": ""}
+        else:
+            handle = extract_social_handle(a["v"]) if flags.get("social", True) else None
+            if handle is not None:
+                out = {"ok": True, "message": explain.MESSAGES["generalize.social"].format(platform=handle.platform), "detail": result}
+            else:
+                out = {"ok": True, "message": explain.MESSAGES["generalize.ok"], "detail": result}
     elif name == "many":
         pairs = ug.generalize_many([l for l in a["v"].replace(",", "\\n").split("\\n") if l.strip()])
         groups = {}

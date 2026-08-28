@@ -9,11 +9,10 @@ const STEPS = [
     body: 'URL Genie does not have one big “clean this” function. It has a handful of narrow checks that each answer a single question honestly, plus one canonicalizer that makes links comparable. This tour walks through them in the order you would actually use them.',
     aside: 'Every step runs the real Python package in your browser. Each one starts on an input that fails — fix it and Next unlocks.' },
 
-  { id: 'url', kind: 'single', kicker: 'STEP 1 · VALIDATE', title: 'Is this even a real URL?', sig: 'validate_url(url, require_suffix=True)', doc: SRC + 'validate.py',
+  { id: 'url', kind: 'single', kicker: 'STEP 1 · VALIDATE', title: 'Is this even a real URL?', sig: 'validate_url(url)', doc: SRC + 'validate.py',
     body: 'The first filter on any scraped list. It parses the string and checks the ending against the public suffix list, so a typo like “acme.zzz” fails even though it is shaped perfectly.',
     use: 'a scraped column is half junk and every request you spend on a fake domain is a request wasted',
-    aside: 'The flag is narrower than it looks. A made-up TLD is rejected by the parser itself, so turning it off changes nothing there — the only hosts it rescues are bare IP addresses, the one suffix-less form the parser keeps.',
-    toggle: 'require real TLD', toggleDefault: true, val: 'https://acme.zzz',
+    val: 'https://acme.zzz',
     chips: ['https://acme.zzz', 'http://192.168.1.10/admin', 'https://example.photography/portfolio'] },
 
   { id: 'email', kind: 'single', kicker: 'STEP 2 · VALIDATE', title: 'Is this address theirs, or just on their page?', sig: 'validate_email(email, url=None)', doc: SRC + 'validate.py',
@@ -113,8 +112,7 @@ function run() {
   const p = S.sels[s.id] || 'facebook';
   let r;
   try {
-    if (s.id === 'url') r = S.rt.call('url', { v, suffix: on });
-    else if (s.id === 'email') r = S.rt.call('email', { v, site: on ? (S.extras.email || '') : '' });
+    if (s.id === 'email') r = S.rt.call('email', { v, site: on ? (S.extras.email || '') : '' });
     else if (s.id === 'profile') r = S.rt.call('profile', { v, p });
     else if (s.id === 'many') {
       const g = S.rt.call('many', { v });

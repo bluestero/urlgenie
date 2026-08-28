@@ -83,7 +83,7 @@ input:focus,textarea:focus{border-color:var(--acc)}
 .solid[disabled]{background:var(--line);border-color:var(--line);color:var(--fg4);cursor:default}
 .chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 11px;color:var(--fg3);font:12px/1 var(--mono);cursor:pointer;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip:hover{border-color:var(--acc);color:var(--acc)}
-.kicker{font:600 10px/1.4 var(--mono);letter-spacing:.10em;color:var(--acc)}
+.kicker{font:700 13px/1.4 var(--mono);letter-spacing:.10em;color:var(--acc)}
 .status{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 11px;font:12px/1 var(--sans);color:var(--fg3)}
 .status .dot{width:7px;height:7px;border-radius:50%;background:var(--acc)}
 .status.ready .dot{background:var(--ok)}
@@ -93,3 +93,11 @@ input:focus,textarea:focus{border-color:var(--acc)}
 
 @keyframes riseA{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes riseB{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* shared footer, used on every page */
+.foot{display:flex;align-items:center;justify-content:space-between;gap:18px;border-top:1px solid var(--line2);margin-top:34px;padding-top:18px;flex-wrap:wrap}
+.foot .links{display:flex;align-items:center;gap:14px;font:13px/1 var(--sans);color:var(--fg4);flex-wrap:wrap}
+.foot .links a{color:var(--fg4)}
+.foot .links a:hover{color:var(--acc)}
+.foot .replay{font:500 13px/1 var(--sans);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.foot .replay:hover{border-color:var(--acc);color:var(--acc)}
