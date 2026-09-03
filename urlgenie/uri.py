@@ -10,15 +10,10 @@ import re
 import string
 from typing import Optional, Tuple
 
-import tldextract
-
+from .psl import SuffixParts, suffix_parts
 from .types import ParsedUrl
 
 __all__ = ["parse_url", "remove_dot_segments", "normalize_component", "normalize_host"]
-
-
-#-Offline public-suffix lookup: never hits the network, uses the bundled snapshot-#
-_SUFFIXES = tldextract.TLDExtract(suffix_list_urls=())
 
 #-RFC 3986 Appendix B: the reference URI parsing regex-#
 _URI_RE = re.compile(
@@ -212,10 +207,17 @@ def parse_url(url: str, *, default_scheme: str = "https") -> Optional[ParsedUrl]
     query = normalize_component(match.group("query") or "", _QUERY_SAFE)
     fragment = normalize_component(match.group("fragment") or "", _QUERY_SAFE)
 
-    parts = _SUFFIXES(host)
-    #-Reject hosts with no public suffix (typos like "random.haz"), but keep IPs-#
-    if not parts.suffix and not _IPV4_RE.match(host) and not host.startswith("["):
-        return None
+    is_ip_or_literal = _IPV4_RE.match(host) or host.startswith("[")
+    if is_ip_or_literal:
+        #-An IP/IPvFuture literal has no labels to split -- the whole thing is the "domain"-#
+        parts = SuffixParts(subdomain="", domain=host, suffix="")
+    else:
+        parts = suffix_parts(host)
+        #-Reject hosts with no public suffix (typos like "random.haz") and hosts that
+        # *are* a public suffix with nothing registered under it (e.g. bare "ck",
+        # itself a PSL entry) -- neither is a registrable domain-#
+        if not parts.suffix or not parts.domain:
+            return None
 
     return ParsedUrl(
         scheme=scheme,
@@ -226,6 +228,6 @@ def parse_url(url: str, *, default_scheme: str = "https") -> Optional[ParsedUrl]
         query=query,
         fragment=fragment,
         subdomain=parts.subdomain,
-        domain=parts.domain or host,
+        domain=parts.domain,
         suffix=parts.suffix,
     )

@@ -52,14 +52,14 @@ const DEFS = {
     name: 'Canonical form of one URL', sig: 'generalize(url)', doc: SRC + 'generalize.py',
     desc: 'RFC 3986 normalization — scheme and host case, percent-encoding, dot segments, default ports — then query, fragment and trailing slash are dropped. Recognised social links collapse further, to the canonical profile URL.',
     when: 'the same page arrives spelled four ways and you need one key to store it under',
-    ph: 'http://WWW.Example.com/Blog/?utm_source=x', val: 'http://WWW.Example.com/Blog/?utm_source=x',
-    chips: ['http://WWW.Example.com/Blog/?utm_source=x', 'fb.com/@ahmedkhatib', 'example.com/blog/'],
+    ph: 'http://WWW.Example.com/Blog/?utm_source=x#section', val: 'http://WWW.Example.com/Blog/?utm_source=x#section',
+    chips: ['http://WWW.Example.com/Blog/?utm_source=x#section', 'fb.com/@ahmedkhatib', 'example.com/blog/'],
     flags: [
       { key: 'keep_query', label: 'keep query', def: false },
       { key: 'keep_fragment', label: 'keep fragment', def: false },
       { key: 'force_https', label: 'force https', def: true },
       { key: 'lower', label: 'lowercase', def: false },
-      { key: 'social', label: 'social', def: true, adv: true },
+      { key: 'social', label: 'social', def: false, adv: true },
       { key: 'keep_path', label: 'keep path', def: true, adv: true },
       { key: 'keep_userinfo', label: 'keep userinfo', def: false, adv: true }
     ]

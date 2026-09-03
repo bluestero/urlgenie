@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "urlgenie"
-version = "2.0.5"
+version = "2.1.0"
 description = "URL generalization, contact extraction and validation, RFC 3986 compliant."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.8"
 authors = [{ name = "Ahmed Khatib", email = "ahmedkhatib99@gmail.com" }]
-dependencies = ["tldextract>=3.0"]
+dependencies = []
 keywords = ["url", "url-parsing", "rfc3986", "data-cleaning", "social-media", "validation"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -37,6 +37,9 @@ Tracker = "https://github.com/bluestero/urlgenie/issues"
 
 [tool.setuptools.packages.find]
 include = ["urlgenie*"]
+
+[tool.setuptools.package-data]
+urlgenie = ["public_suffix_list.dat"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

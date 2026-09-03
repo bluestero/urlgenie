@@ -22,7 +22,7 @@ Try it live in the browser: [urlgenie](https://bluestero.github.io/urlgenie/) --
 - Email, phone and social extraction from free text, with validation.
 - Domain-scoped email filtering, to drop contacts unrelated to a site.
 - Duplicate reduction: every spelling of a profile collapses to one canonical URL.
-- Public suffix validation against the bundled PSL snapshot -- no network access.
+- Public suffix validation against the bundled PSL snapshot (ICANN and private suffixes alike, e.g. `blogspot.com`, `github.io`) -- no network access.
 - Pure functions: no hidden state, safe to use across threads and processes.
 
 ## ⚙️ Installation
@@ -31,7 +31,7 @@ Try it live in the browser: [urlgenie](https://bluestero.github.io/urlgenie/) --
 python -m pip install urlgenie
 ```
 
-Depends only on `tldextract`, used offline against its bundled public suffix list.
+Zero dependencies -- the public suffix list ships inside the package and is matched offline by a small built-in module.
 
 ## ♨️ Usage
 
@@ -221,9 +221,19 @@ percent-encoding normalization (§2.1, §6.2.2.2). The last is idempotent, unlik
 
 ## ⚡ Performance
 
-Roughly 60,000 URLs per second single-threaded (~17s for one million), measured over a
-corpus of one million distinct URLs. Every function is pure, so `multiprocessing.Pool`
-scales it linearly.
+Roughly 110,000 URLs per second single-threaded for parsing, 60,000/s for a full
+`generalize()` call -- measured on a 500,000-URL corpus. Every function is pure, so
+`multiprocessing.Pool` scales it linearly.
+
+Public suffix matching moved from `tldextract` to a small built-in module in 2.1.0,
+which is 1.7-2.8x faster across the board on top of dropping the dependency entirely:
+
+| Operation | 2.0.x (tldextract) | 2.1.0 (built-in PSL) |
+|---|---|---|
+| `parse_url` | 68,686 url/s | 117,425 url/s |
+| `extract_social_handle` | 42,124 url/s | 69,917 url/s |
+| `generalize` | 28,101 url/s | 60,931 url/s |
+| `generalize_url` | 39,061 url/s | 110,042 url/s |
 
 ```shell
 python tools/benchmark.py 1000000
@@ -232,7 +242,7 @@ python tools/benchmark.py 1000000
 ## 🧪 Tests
 
 ```shell
-python -m pytest tests -q      # 287 tests
+python -m pytest tests -q      # 299 tests
 ```
 
 `sample.csv` at the repo root is the reference sheet and is treated as the spec,
