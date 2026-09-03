@@ -30,7 +30,7 @@ from .validate import (
     validate_url,
 )
 
-__version__ = "2.0.5"
+__version__ = "2.1.0"
 
 __all__ = [
     "ExtractResult",

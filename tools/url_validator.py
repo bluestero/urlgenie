@@ -1,15 +1,25 @@
 """Minimal, dependency-free URL validator. Python 3.7+, stdlib only.
 
+Reuses urlgenie's bundled public-suffix data (urlgenie/psl.py and
+urlgenie/public_suffix_list.dat) rather than a pip package.
+
     from url_validator import is_valid_url
 
     is_valid_url("example.com")                              # True
     is_valid_url("not a url")                                # False
     is_valid_url("example.zzzzz", require_valid_tld=True)     # False -- not a real TLD
     is_valid_url("example.zzzzz")                             # True  -- TLD check is off by default
+    is_valid_url("blogspot.com")                              # True  -- ordinary .com registration
+    is_valid_url("b.ck")                                      # False -- ".ck" can't be registered under bare
 """
 
 import re
+import sys
+from pathlib import Path
 from urllib.parse import urlparse
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from urlgenie.psl import suffix_parts
 
 #-A compact, hand-picked set of real TLDs -- common gTLDs, ccTLDs, and the
 # popular newer ones. Not the full ~1500-entry IANA list; enough to catch
@@ -73,6 +83,11 @@ def is_valid_url(url, require_valid_tld=False):
         return False
 
     if require_valid_tld and tld not in _KNOWN_TLDS:
+        return False
+
+    #-Reject a host that IS a public suffix with nothing registered under it,
+    # e.g. bare "ck" -- not a registrable domain-#
+    if not suffix_parts(host).domain:
         return False
 
     return True
